@@ -1,5 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <SDL2/SDL.h>
+
+const int SCREEN_WIDTH = 512;
+const int SCREEN_HEIGHT = 256;
 
 int A = 0;		// Address Register
 int D = 0;		// Data Register
@@ -22,7 +26,7 @@ int load_rom();
 void debug();
 unsigned short from_bin(const char *s);
 
-int main(){
+int main(int argc, char *args[]){
 	int load_status = load_rom();
 
 	if (load_status){
@@ -30,11 +34,32 @@ int main(){
 		exit(1);
 	}
 	
-	while (1){
+	SDL_Window *window = NULL;
+	SDL_Surface *surface = NULL;
+
+	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+		printf("SDL didn't work: %s\n", SDL_GetError());
+	}
+	else {
+		window = SDL_CreateWindow("Hack Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+		if (window == NULL){
+			printf("Window fail");
+		}
+		else {
+			surface = SDL_GetWindowSurface(window);
+			SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, 0xFF, 0xFF, 0xFF));
+			SDL_UpdateWindowSurface(window);
+			SDL_Delay(2000);
+		}
+		SDL_DestroyWindow(window);
+		SDL_Quit();
+	}
+
+/*	while (1){
 		cycle();
 		debug();
 		getchar();
-	}
+	}	*/
 
 	return 0;
 }
