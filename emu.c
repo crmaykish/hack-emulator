@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 int A = 0;		// Address Register
 int D = 0;		// Data Register
@@ -17,11 +18,20 @@ int c1(int comp);
 void jump(int comp, int jump);
 void dest(int val, int dest);
 void cycle();
-void load_rom();
+int load_rom();
 void debug();
+unsigned short from_bin(const char *s);
 
 int main(){
-	load_rom();
+
+	printf("%d\n", from_bin("1110111111001000"));
+
+	int load_status = load_rom();
+
+	if (load_status){
+		printf("%s\n", "Can't open ROM file.");
+		exit(1);
+	}
 	
 	while (1){
 		cycle();
@@ -194,13 +204,39 @@ int c1(int comp){
 
 // *** ROM Stuff *** //
 
-void load_rom(){
-	int i;
-	int demo_rom[] = {0b0000000000010000,0b1110111111001000,0b0000000000010000,0b1111110111001000,0b0000000000000010,0b1110101010000111};
+int load_rom(){
+	int status_code = 0;
 
-	for (i=0; i<sizeof(demo_rom)/4; i++){
-		IM[i] = demo_rom[i];
+	FILE *rom_file = fopen("roms/loop.hack", "r");
+
+	if (rom_file == NULL){
+		status_code = 1;
+	} else {
+		char *instruction = malloc(16);
+		int char_count = 0;
+		int c;
+		int i=0;
+
+		while( (c = fgetc(rom_file)) != EOF){
+			if (c == '0' || c == '1') {
+				instruction[char_count] = c;
+				char_count++;
+				if (char_count == 16){
+					char_count = 0;
+					IM[i] = from_bin(instruction);
+					i++;
+				}
+			}
+		}
+
+		free(instruction);
+
+		fclose(rom_file);
 	}
+
+	printf("%d, %d, %d, %d, %d, %d \n", IM[0], IM[1], IM[2], IM[3], IM[4], IM[5]);
+
+	return status_code;
 }
 
 // ***************** //
@@ -239,3 +275,7 @@ void debug(){
 }
 
 // *********************** //
+
+unsigned short from_bin(const char *s){
+	return (unsigned short) strtol(s, NULL, 2);
+}
