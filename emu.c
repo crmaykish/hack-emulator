@@ -1,89 +1,107 @@
 #include <stdio.h>
 
-// Address Register
-int A = 0;
-
-// Data Register
-int D = 0;
-
-// Instruction Memory (ROM)
-int IM[32768];
-
-// Data Memory (RAM)
-int DM[32768];
-
-// Program Counter
-int PC = 0;
-
-// Latest Op Code
-int OP = 0;
+int A = 0;		// Address Register
+int D = 0;		// Data Register
+int IM[32768];	// Instruction Memory (ROM)
+int DM[32768];	// Data Memory (RAM)
+int PC = 0;		// Program Counter
+int OP = 0;		// Latest Op Code
 
 int a_val(int opcode);
 int c_a(int opcode);
 int c_comp(int opcode);
 int c_dest(int opcode);
 int c_jump(int opcode);
+int c0(int comp);
+int c1(int comp);
 int cycle();
+void load_rom();
 void debug();
 
 int main(){
-	// TODO: Load ROM
-
-	int running = 1;
-
-	printf("%s\n", "Starting emulation...");
+	load_rom();
 	
-	while (running){
-		running = cycle();
+	while (1){
+		cycle();
 		debug();
-		PC++;
 		getchar();
 	}
-
-	printf("%s\n", "Emulation stopped.");
 
 	return 0;
 }
 
-int cycle(){
-	int status_code = 0;	// 0 = instruction failed, 1 = instruction succeeded
-
+void cycle(){
 	// Fetch Op Code
 	OP = IM[PC];
 
 	// Execute Op Code
-	if (OP & 0b1000000000000000){
-		int val;
-		int store;
-		int j;
-
-		// C Instruction
+	if (OP & 0b1000000000000000){	// C Instruction Type
+		int val;	// Computed value
 		int a = c_a(OP);
 		int comp = c_comp(OP);
 		int dest = c_dest(OP);
 		int jump = c_jump(OP);
 
 		// Compute value
-		if (a == 0){
-			c0(comp);
-		} else {
-			c1(comp);
-		}
-		// Send it to destination
+		val = a == 0 ? c0(comp) : c1(comp);
 
-		// Decide where to jump, if at all
+		// Store computed value in the specified location(s)
+		dest(val, dest);
 
+		// Jump to the next specified instruction
+		jump(jump);
 	}
-	else {
-		// A Instruction
-		A = a_val(OP);
-		status_code = 1;
+	else {	// A Instruction Type
+		A = a_val(OP);	// Set A to the value
+		PC++;			// Increment program counter
 	}
-
-	return status_code;
 }
 
-// C Instructions
+// Decide where to jump, if at all
+void jump(int jump){
+	switch (jump) {
+		case 0b000 : 	// no jump
+			PC++;
+			break;
+		case 0b001 : 	// comp > 0
+			if (comp > 0) { PC = A; }
+			break;
+		case 0b010 : 	// comp = 0
+			if (comp == 0) { PC = A; }
+			break;
+		case 0b011 : 	// comp >= 0
+			if (comp >= 0) { PC = A; }
+			break;
+		case 0b100 : 	// comp < 0
+			if (comp < 0) { PC = A; }
+			break;
+		case 0b101 : 	// comp != 0
+			if (comp != 0) { PC = A; }
+			break;
+		case 0b110 : 	// comp <= 0
+			if (comp <= 0) { PC = A; }
+			break;
+		case 0b111 : 	// unconditional
+			PC = A;
+			break;
+	}
+}
+
+// Send value to destination, notice these are not mutually exclusive. 
+void dest(int val, int dest){
+	if (dest & 0b001){
+		// Store in M
+		DM[A] = val;
+	}
+	if ((dest & 0b010) >> 1){
+		// Store in D
+		D = val;
+	}
+	if ((dest & 0b100) >> 2){
+		// Store in A
+		A = val;
+	}
+}
 
 int c0(int comp){
 	int val;
@@ -141,10 +159,55 @@ int c0(int comp){
 	return val;
 }
 
-int c1(){
+int c1(int comp){
 	int val;
+	switch (comp){
+		case 0b110000 :		// M
+			val = DM[A];
+			break;
+		case 0b110001 :		// !M
+			val = !DM[A];
+			break;
+		case 0b110011 : 	// -M
+			val = -DM[A];
+			break;
+		case 0b110111 :		// M+1
+			val = DM[A] + 1;
+			break;
+		case 0b110010 : 	// M-1
+			val = DM[A] - 1;
+			break;
+		case 0b000010 : 	// D+M
+			val = D + DM[A];
+			break;
+		case 0b010011 : 	// D-M
+			val = D - DM[A];
+			break;
+		case 0b000111 : 	// M-D
+			val = DM[A] - D;
+			break;
+		case 0b000000 : 	// D&M
+			val = D & DM[A];
+			break;
+		case 0b010101 : 	// D|M
+			val = D|DM[A];
+			break;
+	}
 	return val;
 }
+
+// *** ROM Stuff *** //
+
+void load_rom(){
+	int i;
+	int demo_rom[] = {0b0000000000010000,0b1110111111001000,0b0000000000010000,0b1111110111001000,0b0000000000000010,0b1110101010000111};
+
+	for (i=0; i<sizeof(demo_rom)/4; i++){
+		IM[i] = demo_rom[i];
+	}
+}
+
+// ***************** //
 
 // *** Op Code Decoding *** //
 
@@ -176,6 +239,7 @@ int c_jump(int opcode){
 void debug(){
 	printf("%d => %X | A: %X, D: %X\n", PC, OP, A, D);
 	printf("%s\n", "---");
+	printf("%X, %X, %X, %X\n---\n", DM[0x10], DM[0x11], DM[0x12], DM[0x13]);
 }
 
 // *********************** //
