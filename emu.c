@@ -14,7 +14,9 @@ int c_dest(int opcode);
 int c_jump(int opcode);
 int c0(int comp);
 int c1(int comp);
-int cycle();
+void jump(int comp, int jump);
+void dest(int val, int dest);
+void cycle();
 void load_rom();
 void debug();
 
@@ -36,20 +38,14 @@ void cycle(){
 
 	// Execute Op Code
 	if (OP & 0b1000000000000000){	// C Instruction Type
-		int val;	// Computed value
-		int a = c_a(OP);
-		int comp = c_comp(OP);
-		int dest = c_dest(OP);
-		int jump = c_jump(OP);
-
 		// Compute value
-		val = a == 0 ? c0(comp) : c1(comp);
+		int val = c_a(OP) == 0 ? c0(c_comp(OP)) : c1(c_comp(OP));
 
 		// Store computed value in the specified location(s)
-		dest(val, dest);
+		dest(val, c_dest(OP));
 
 		// Jump to the next specified instruction
-		jump(jump);
+		jump(val, c_jump(OP));
 	}
 	else {	// A Instruction Type
 		A = a_val(OP);	// Set A to the value
@@ -58,7 +54,7 @@ void cycle(){
 }
 
 // Decide where to jump, if at all
-void jump(int jump){
+void jump(int comp, int jump){
 	switch (jump) {
 		case 0b000 : 	// no jump
 			PC++;
