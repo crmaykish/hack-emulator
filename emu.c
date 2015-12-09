@@ -23,9 +23,6 @@ void debug();
 unsigned short from_bin(const char *s);
 
 int main(){
-
-	printf("%d\n", from_bin("1110111111001000"));
-
 	int load_status = load_rom();
 
 	if (load_status){
@@ -233,8 +230,6 @@ int load_rom(){
 
 		fclose(rom_file);
 	}
-
-	printf("%d, %d, %d, %d, %d, %d \n", IM[0], IM[1], IM[2], IM[3], IM[4], IM[5]);
 
 	return status_code;
 }
