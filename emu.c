@@ -1,9 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <SDL2/SDL.h>
+#include "emu.h"
 
 const int SCREEN_WIDTH = 512;
 const int SCREEN_HEIGHT = 256;
+
+const int SCREEN_BUFFER = 0x4000;
+const int KEYBOARD_BUFFER = 0x6000;
 
 int A = 0;		// Address Register
 int D = 0;		// Data Register
@@ -12,56 +16,83 @@ int DM[32768];	// Data Memory (RAM)
 int PC = 0;		// Program Counter
 int OP = 0;		// Latest Op Code
 
-int a_val(int opcode);
-int c_a(int opcode);
-int c_comp(int opcode);
-int c_dest(int opcode);
-int c_jump(int opcode);
-int c0(int comp);
-int c1(int comp);
-void jump(int comp, int jump);
-void dest(int val, int dest);
-void cycle();
-int load_rom();
-void debug();
-unsigned short from_bin(const char *s);
+SDL_Window *window = NULL;
+SDL_Renderer *renderer = NULL;
+
+void render();
+
+int create_screen(){
+	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+		printf("Could not initialize SDL: %s\n", SDL_GetError());
+		return 3;
+	}
+	
+	if (SDL_CreateWindowAndRenderer(SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL, &window, &renderer)){
+		printf("Couldn't create window and renderer: %s\n", SDL_GetError());
+		return 3;
+	}
+
+	return 0;
+}
 
 int main(int argc, char *args[]){
+	int running = 1;
+	SDL_Event e;
 	int load_status = load_rom();
 
 	if (load_status){
 		printf("%s\n", "Can't open ROM file.");
-		exit(1);
+		return 1;
 	}
 	
-	SDL_Window *window = NULL;
-	SDL_Surface *surface = NULL;
+	create_screen();
 
-	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-		printf("SDL didn't work: %s\n", SDL_GetError());
-	}
-	else {
-		window = SDL_CreateWindow("Hack Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-		if (window == NULL){
-			printf("Window fail");
-		}
-		else {
-			surface = SDL_GetWindowSurface(window);
-			SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, 0xFF, 0xFF, 0xFF));
-			SDL_UpdateWindowSurface(window);
-			SDL_Delay(2000);
-		}
-		SDL_DestroyWindow(window);
-		SDL_Quit();
-	}
+	while (running){
 
-/*	while (1){
+		// Handle input events
+		while (SDL_PollEvent(&e) != 0){
+			if (e.type == SDL_QUIT){
+				running = 0;
+			}
+			else if (e.type == SDL_KEYDOWN){
+				printf("%d\n", e.key.keysym.sym);
+			}
+		}
+
 		cycle();
-		debug();
-		getchar();
-	}	*/
+
+		render();
+	}	
+
+	SDL_DestroyWindow(window);
+	SDL_Quit();
 
 	return 0;
+}
+
+void render(){
+	int r, c;
+	
+	// Set background color
+	SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
+	// Clear screen
+	SDL_RenderClear(renderer);
+	// Set foreground color
+	SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0x10, 0xFF);
+
+	// Render from screen buffer
+	for (r = 0; r < SCREEN_HEIGHT; r++){
+		for (c = 0; c < SCREEN_WIDTH; c++){
+			unsigned char bit = DM[SCREEN_BUFFER + (r * 32) + (c / 16)] % 16;
+			if (bit){
+				SDL_RenderDrawPoint(renderer, c, r);
+			}
+		}
+	}
+	
+	SDL_RenderPresent(renderer);
+
+	SDL_Delay(50);
 }
 
 void cycle(){
@@ -229,7 +260,7 @@ int c1(int comp){
 int load_rom(){
 	int status_code = 0;
 
-	FILE *rom_file = fopen("roms/loop.hack", "r");
+	FILE *rom_file = fopen("roms/black_line.hack", "r");
 
 	if (rom_file == NULL){
 		status_code = 1;
