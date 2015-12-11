@@ -26,26 +26,38 @@ int main(int argc, char *argv[]){
 		char *command = load_next_command(&p);
 		Command_Type type = command_type(&p);
 
-		printf("%d ", p.current_command_loc + 1);
+		printf("%d. ", p.current_command_loc + 1);
 
 		if (type == A_COMMAND){
 			char *s = symbol(&p, type);
-			printf("A: %s\n", s);
+			printf("%s\n", s);
 			free(s);
 		}
 		else if (type == L_COMMAND){
 			char *s = symbol(&p, type);
-			printf("L: %s\n", s);
+			printf("%s\n", s);
 			free(s);
 		}
 		else if (type == C_COMMAND){
-			char *d = dest(&p);
+			char *d = dest(&p);	
+			char *c = comp(&p);
 			char *j = jump(&p);
-			char *c = 0;
-			printf("C: %s=%s;%s\n", d, c, j);
+			
+			if (d){
+				printf("%s = ", d);
+			}
+
+			printf("%s", c);
+
+			if (j){
+				printf(" ; %s", j);
+			}
+
+			printf("\n");
+
 			free(d);
-			free(j);
 			free(c);
+			free(j);
 		}
 		else if (type == SKIP){
 			printf("SKIP \n");

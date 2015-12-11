@@ -82,31 +82,37 @@ char *symbol(Parser *parser, const Command_Type type) {
 }
 
 char *dest(Parser *parser) {
-	char *sub = strchr(parser->current_command, '=');
-
-	if (sub == 0){
-		return 0;
+	int i = index_of(parser->current_command, '=');
+	if (i >= 0){
+		return substr(parser->current_command, 0, i);
 	}
-	else {
-		int equal_index = sub - parser->current_command;
-		return substr(parser->current_command, 0, equal_index);
-	}
+	return 0;
 }
 
 char *comp(Parser *parser) {
-	
+	int comp_start = 0;
+	int comp_end = strlen(parser->current_command);
+
+	int eq_index = index_of(parser->current_command, '=');
+	int semi_index = index_of(parser->current_command, ';');
+
+	if (eq_index >= 0){
+		comp_start = eq_index + 1;
+	}
+
+	if (semi_index >= 0){
+		comp_end = semi_index;
+	}
+
+	return substr(parser->current_command, comp_start, comp_end - comp_start);
 }
 
 char *jump(Parser *parser) {
-	char *sub = strchr(parser->current_command, ';');
-
-	if (sub == 0){
-		return 0;
+	int i = index_of(parser->current_command, ';');
+	if (i >= 0){
+		return substr(parser->current_command, i + 1, strlen(parser->current_command) - (i + 1));
 	}
-	else {
-		int semi_index = sub - parser->current_command;
-		return substr(parser->current_command, semi_index + 1, strlen(parser->current_command) - semi_index - 1);
-	}
+	return 0;
 }
 
 unsigned int line_count(Parser *p){

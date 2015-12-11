@@ -8,11 +8,21 @@ int starts_with(char *str, char *prefix){
 }
 
 // The substring memory will need to be freed.
-char *substr(char *str, int start, int length){
+char *substr(const char *str, const int start, const int length){
     char *sub = malloc(sizeof(char*) * length);
     strncpy(sub, str + start, length);
     sub[length] = '\0';
     return sub;
+}
+
+int index_of(const char * str, const char c){
+    int index = -1;
+    char *sub = strchr(str, c);
+    if (sub != 0){
+        index = sub - str;
+    }
+    
+    return index;
 }
 
 // Shamelessly stolen from JayM on Stack Overflow...
