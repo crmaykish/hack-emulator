@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "parser.h"
+#include "str_utils.h"
 
 void parser_init(struct Parser *parser, char *file_contents) {
 	int i;
@@ -17,10 +18,10 @@ void parser_init(struct Parser *parser, char *file_contents) {
 
 	// Split the file contents into lines, each corresponding to a command
 	// Ignore empty or commented lines
-	parser->command_list[0] = strtok(parser->file_contents, "\n");
+	parser->command_list[0] = trim(strtok(parser->file_contents, "\n"));
 
 	for (i = 1; i < parser->line_count; i++){
-		parser->command_list[i] = strtok(NULL, "\n");
+		parser->command_list[i] = trim(strtok(NULL, "\n"));
 	}
 
 	// Start parsing at the beginning of the file
@@ -46,11 +47,28 @@ char *load_next_command(Parser *parser) {
 
 Command_Type command_type(Parser *parser) {
 
-	return A_COMMAND;
+	if (starts_with(parser->current_command, "@")){
+		return A_COMMAND;
+	}
+	else if (starts_with(parser->current_command, "(")){
+		return L_COMMAND;
+	}
+	else if (strstr(parser->current_command, "=") || strstr(parser->current_command, ";")) {
+		return C_COMMAND;
+	}
+
+	return INVALID;
 }
 
-char *symbol(Parser *parser) {
+char *symbol(Parser *parser, const Command_Type type) {
+	if (type == A_COMMAND){
+		return parser->current_command + 1;
+	}
+	else if (type == L_COMMAND){
+		
+	}
 
+	return NULL;
 }
 
 char *dest(Parser *parser) {

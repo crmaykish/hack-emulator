@@ -6,7 +6,7 @@ typedef struct Parser {
 	char **command_list;
 } Parser;
 
-typedef enum {A_COMMAND, C_COMMAND, L_COMMAND} Command_Type;
+typedef enum {A_COMMAND, C_COMMAND, L_COMMAND, INVALID} Command_Type;
 
 void parser_init(Parser *parser, char *file_contents);
 
@@ -15,7 +15,7 @@ char *load_next_command(Parser *parser);
 
 Command_Type command_type(Parser *parser);
 
-char *symbol(Parser *parser);
+char *symbol(Parser *parser, const Command_Type type);
 char *dest(Parser *parser);
 char *comp(Parser *parser);
 char *jump(Parser *parser);

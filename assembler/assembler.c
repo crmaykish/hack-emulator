@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "parser.h"
 
+
 char *file_contents;
 
 int load_asm(char *asm_path);
@@ -17,13 +18,28 @@ int main(int argc, char *argv[]){
 		printf("%s\n", "Problem loading ASM file.");
 		return 1;
 	}
-	
+
 	Parser p;
 	parser_init(&p, file_contents);
 
 	while (has_more_commands(&p)){
 		char *command = load_next_command(&p);
-		printf("%s\n", command);
+		Command_Type type = command_type(&p);
+
+		if (type == A_COMMAND){
+			char *s = symbol(&p, type);
+			printf("%s\n", s);
+		}
+		else if (type == L_COMMAND){
+
+		}
+		else if (type == C_COMMAND){
+
+		}
+		else {
+			// Invalid command
+		}
+
 	}
 
 	return 0;
