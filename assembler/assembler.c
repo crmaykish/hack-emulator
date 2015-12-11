@@ -39,7 +39,9 @@ int main(int argc, char *argv[]){
 			free(s);
 		}
 		else if (type == C_COMMAND){
-			printf("C: \n");
+			char *d = dest(&p);
+			printf("C: %s\n", d);
+			free(d);
 		}
 		else if (type == SKIP){
 			printf("SKIP \n");

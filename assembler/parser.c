@@ -82,10 +82,14 @@ char *symbol(Parser *parser, const Command_Type type) {
 }
 
 char *dest(Parser *parser) {
-	char *equal_index = strchr(parser->current_command, '=');
+	char *sub = strchr(parser->current_command, '=');
 
-	if (equal_index != NULL){
-
+	if (sub == 0){
+		return 0;
+	}
+	else {
+		int equal_index = sub - parser->current_command;
+		return substr(parser->current_command, 0, equal_index);
 	}
 }
 
