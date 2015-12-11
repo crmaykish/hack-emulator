@@ -8,11 +8,11 @@ int load_asm(char *asm_path);
 
 int main(int argc, char *argv[]){
 	// Primitive argument checking
-	if (argc < 3) {
+	if (argc < 2) {
 		printf("%s\n", "Invalid arguments.");
 		return 1;
 	}
-	
+
 	if (load_asm(argv[1])){
 		printf("%s\n", "Problem loading ASM file.");
 		return 1;
@@ -20,6 +20,7 @@ int main(int argc, char *argv[]){
 	
 	Parser p;
 	parser_init(&p, file_contents);
+	
 
 	return 0;
 }
