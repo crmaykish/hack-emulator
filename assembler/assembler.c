@@ -20,7 +20,11 @@ int main(int argc, char *argv[]){
 	
 	Parser p;
 	parser_init(&p, file_contents);
-	
+
+	while (has_more_commands(&p)){
+		char *command = load_next_command(&p);
+		printf("%s\n", command);
+	}
 
 	return 0;
 }

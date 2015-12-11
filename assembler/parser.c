@@ -23,20 +23,25 @@ void parser_init(struct Parser *parser, char *file_contents) {
 		parser->command_list[i] = strtok(NULL, "\n");
 	}
 
-	// Free file contents - no longer needed;
-	free(file_contents);
-
 	// Start parsing at the beginning of the file
 	parser->current_command_loc = 0;
+
+	// Start with an empty command
+	parser->current_command = 0;
 }
 
 int has_more_commands(Parser *parser) {
-
-	return 0;
+	return parser->current_command_loc < parser->line_count - 1;
 }
 
-void load_next_command(Parser *parser) {
-	//parser->current_command = strtok(parser->file_contents, "\n");
+char *load_next_command(Parser *parser) {
+	if (parser->current_command != 0) {
+		parser->current_command_loc++;
+	}
+
+	parser->current_command = parser->command_list[parser->current_command_loc];
+
+	return parser->current_command;
 }
 
 Command_Type command_type(Parser *parser) {

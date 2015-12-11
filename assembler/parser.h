@@ -11,7 +11,7 @@ typedef enum {A_COMMAND, C_COMMAND, L_COMMAND} Command_Type;
 void parser_init(Parser *parser, char *file_contents);
 
 int has_more_commands(Parser *parser);
-void load_next_command(Parser *parser);
+char *load_next_command(Parser *parser);
 
 Command_Type command_type(Parser *parser);
 
