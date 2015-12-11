@@ -40,8 +40,12 @@ int main(int argc, char *argv[]){
 		}
 		else if (type == C_COMMAND){
 			char *d = dest(&p);
-			printf("C: %s\n", d);
+			char *j = jump(&p);
+			char *c = 0;
+			printf("C: %s=%s;%s\n", d, c, j);
 			free(d);
+			free(j);
+			free(c);
 		}
 		else if (type == SKIP){
 			printf("SKIP \n");

@@ -94,11 +94,19 @@ char *dest(Parser *parser) {
 }
 
 char *comp(Parser *parser) {
-
+	
 }
 
 char *jump(Parser *parser) {
+	char *sub = strchr(parser->current_command, ';');
 
+	if (sub == 0){
+		return 0;
+	}
+	else {
+		int semi_index = sub - parser->current_command;
+		return substr(parser->current_command, semi_index + 1, strlen(parser->current_command) - semi_index - 1);
+	}
 }
 
 unsigned int line_count(Parser *p){
