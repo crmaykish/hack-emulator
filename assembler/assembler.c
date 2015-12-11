@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "parser.h"
-
+#include "str_utils.h"
 
 char *file_contents;
 
@@ -26,18 +26,27 @@ int main(int argc, char *argv[]){
 		char *command = load_next_command(&p);
 		Command_Type type = command_type(&p);
 
+		printf("%d ", p.current_command_loc + 1);
+
 		if (type == A_COMMAND){
 			char *s = symbol(&p, type);
-			printf("%s\n", s);
+			printf("A: %s\n", s);
+			free(s);
 		}
 		else if (type == L_COMMAND){
-
+			char *s = symbol(&p, type);
+			printf("L: %s\n", s);
+			free(s);
 		}
 		else if (type == C_COMMAND){
-
+			printf("C: \n");
+		}
+		else if (type == SKIP){
+			printf("SKIP \n");
 		}
 		else {
 			// Invalid command
+			printf("Bad command \n");
 		}
 
 	}

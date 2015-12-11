@@ -24,10 +24,10 @@ void parser_init(struct Parser *parser, char *file_contents) {
 		parser->command_list[i] = trim(strtok(NULL, "\n"));
 	}
 
-	// Start parsing at the beginning of the file
+	// // Start parsing at the beginning of the file
 	parser->current_command_loc = 0;
 
-	// Start with an empty command
+	// // Start with an empty command
 	parser->current_command = 0;
 }
 
@@ -47,6 +47,13 @@ char *load_next_command(Parser *parser) {
 
 Command_Type command_type(Parser *parser) {
 
+	if (parser->current_command == (char) 0 ||			// Check for empty strings
+		isspace(parser->current_command[0]) ||			// Check for empty lines
+		starts_with(parser->current_command, "//")		// Check for comments
+	){
+		return SKIP;
+	}
+
 	if (starts_with(parser->current_command, "@")){
 		return A_COMMAND;
 	}
@@ -61,18 +68,25 @@ Command_Type command_type(Parser *parser) {
 }
 
 char *symbol(Parser *parser, const Command_Type type) {
+	// If A command, return the value after the @
 	if (type == A_COMMAND){
-		return parser->current_command + 1;
+		return substr(parser->current_command, 1, strlen(parser->current_command) - 1);
 	}
+
+	// If L command, return the value between the parentheses
 	else if (type == L_COMMAND){
-		
+		return substr(parser->current_command, 1, strlen(parser->current_command) - 3);
 	}
 
 	return NULL;
 }
 
 char *dest(Parser *parser) {
+	char *equal_index = strchr(parser->current_command, '=');
 
+	if (equal_index != NULL){
+
+	}
 }
 
 char *comp(Parser *parser) {
