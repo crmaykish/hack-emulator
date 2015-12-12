@@ -1,4 +1,4 @@
-OBJS = assembler.c parser.c str_utils.c
+OBJS = assembler.c parser.c code.c str_utils.c
 CC = gcc
 LINKER_FLAGS = -g
 OBJ_NAME = assembler.out

@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "parser.h"
+#include "code.h"
 #include "str_utils.h"
 
 char *file_contents;
@@ -29,8 +31,20 @@ int main(int argc, char *argv[]){
 		printf("%d. ", p.current_command_loc + 1);
 
 		if (type == A_COMMAND){
+			int i;
 			char *s = symbol(&p, type);
-			printf("%s\n", s);
+
+			char bin[17];
+			bin[16] = '\0';
+
+			for (i = 15; i >=0; i--){
+				bin[i] = (atoi(s) >> (15 - i) & 0b1) == 1 ? '1' : '0';
+			}
+
+			// printf("%s\n", bin);
+
+			printf("A : %s\n", bin);
+
 			free(s);
 		}
 		else if (type == L_COMMAND){
@@ -39,21 +53,29 @@ int main(int argc, char *argv[]){
 			free(s);
 		}
 		else if (type == C_COMMAND){
+			int i=0;
 			char *d = dest(&p);	
 			char *c = comp(&p);
 			char *j = jump(&p);
-			
-			if (d){
-				printf("%s = ", d);
-			}
 
-			printf("%s", c);
+			unsigned short b_d = bin_dest(d);
+			unsigned short b_c = bin_comp(c);
+			unsigned short b_j = bin_jump(j);
 
-			if (j){
-				printf(" ; %s", j);
-			}
 
-			printf("\n");
+
+			// unsigned short conc = ((bin_comp(c) << 6) + (bin_dest(d) << 3) + bin_jump(j)) & 0xFFFF;
+
+			// printf("%s - %d\n", c, bin_comp(c));
+
+			// char bin[17];
+			// bin[16] = '\0';
+
+			// for (i = 15; i >=0; i--){
+			// 	bin[i] = (conc >> (15 - i) & 0b1) == 1 ? '1' : '0';
+			// }
+
+			printf("D : \n");
 
 			free(d);
 			free(c);
