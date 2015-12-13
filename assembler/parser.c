@@ -91,7 +91,7 @@ char *dest(Parser *parser) {
 
 char *comp(Parser *parser) {
 	int comp_start = 0;
-	int comp_end = strlen(parser->current_command);
+	int comp_end = strlen(parser->current_command) - 1;
 
 	int eq_index = index_of(parser->current_command, '=');
 	int semi_index = index_of(parser->current_command, ';');
@@ -104,7 +104,9 @@ char *comp(Parser *parser) {
 		comp_end = semi_index;
 	}
 
-	return substr(parser->current_command, comp_start, comp_end - comp_start);
+	char *temp = substr(parser->current_command, comp_start, comp_end - comp_start);
+
+	return temp;
 }
 
 char *jump(Parser *parser) {

@@ -130,25 +130,29 @@ unsigned short bin_jump(char *j){
 		return 0;
 	}
 
-	if (strcmp(j, "JGT")){
+	// strncmp() shouldn't be needed. This should work with with strcmp().
+	// Some garbage is probably at the end of the strings. I need to track down
+	// the source instead of resorting to strncmp()....
+
+	if (strncmp(j, "JGT", 3) == 0){
 		bin = 0b001;
 	}
-	else if (strcmp(j, "JEQ") == 0){
+	else if (strncmp(j, "JEQ", 3) == 0){
 		bin = 0b010;
 	}
-	else if (strcmp(j, "JGE") == 0){
+	else if (strncmp(j, "JGE", 3) == 0){
 		bin = 0b011;
 	}
-	else if (strcmp(j, "JLT") == 0){
+	else if (strncmp(j, "JLT", 3) == 0){
 		bin = 0b100;
 	}
-	else if (strcmp(j, "JNE") == 0){
+	else if (strncmp(j, "JNE", 3) == 0){
 		bin = 0b101;
 	}
-	else if (strcmp(j, "JLE") == 0){
+	else if (strncmp(j, "JLE", 3) == 0){
 		bin = 0b110;
 	}
-	else if (strcmp(j, "JMP") == 0){
+	else if (strncmp(j, "JMP", 3) == 0){
 		bin = 0b111;
 	}
 

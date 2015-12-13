@@ -41,8 +41,6 @@ int main(int argc, char *argv[]){
 				bin[i] = (atoi(s) >> (15 - i) & 0b1) == 1 ? '1' : '0';
 			}
 
-			// printf("%s\n", bin);
-
 			printf("A : %s\n", bin);
 
 			free(s);
@@ -62,20 +60,16 @@ int main(int argc, char *argv[]){
 			unsigned short b_c = bin_comp(c);
 			unsigned short b_j = bin_jump(j);
 
+			unsigned short conc = ((0b111 << 13) + (bin_comp(c) << 6) + (bin_dest(d) << 3) + bin_jump(j)) & 0xFFFF;
 
+			char bin[17];
+			bin[16] = '\0';
 
-			// unsigned short conc = ((bin_comp(c) << 6) + (bin_dest(d) << 3) + bin_jump(j)) & 0xFFFF;
+			for (i = 15; i >=0; i--){
+				bin[i] = (conc >> (15 - i) & 0b1) == 1 ? '1' : '0';
+			}
 
-			// printf("%s - %d\n", c, bin_comp(c));
-
-			// char bin[17];
-			// bin[16] = '\0';
-
-			// for (i = 15; i >=0; i--){
-			// 	bin[i] = (conc >> (15 - i) & 0b1) == 1 ? '1' : '0';
-			// }
-
-			printf("D : \n");
+			printf("D : %s\n", bin);
 
 			free(d);
 			free(c);

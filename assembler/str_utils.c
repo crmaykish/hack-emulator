@@ -9,9 +9,9 @@ int starts_with(char *str, char *prefix){
 
 // The substring memory will need to be freed.
 char *substr(const char *str, const int start, const int length){
-    char *sub = malloc(sizeof(char*) * length);
+    char *sub = malloc((sizeof(char*) * length) + 1);
     strncpy(sub, str + start, length);
-    sub[length-1] = '\0';
+    sub[length] = '\0';
     return sub;
 }
 
