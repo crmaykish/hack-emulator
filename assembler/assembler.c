@@ -1,96 +1,47 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "parser.h"
-#include "code.h"
+#include "assembler.h"
+#include "binary.h"
 #include "str_utils.h"
 
-char *file_contents;
+char* assemble(Assembler *a, char *asm_path){
+	char *file_contents = load_asm(a, asm_path);
+	parser_init(&a->parser, file_contents);
 
-int load_asm(char *asm_path);
+	while (has_more_commands(&a->parser)){
+		char *command = load_next_command(&a->parser);
+		Command_Type type = command_type(&a->parser);
 
-int main(int argc, char *argv[]){
-	// Primitive argument checking
-	if (argc < 2) {
-		printf("%s\n", "Invalid arguments.");
-		return 1;
+		printf("%d. ", a->parser.current_command_loc + 1);
+
+		switch (type){
+			case A_COMMAND :
+				a_command(&a->parser);
+				break;
+			case L_COMMAND :
+				l_command(&a->parser);
+				break;
+			case C_COMMAND :
+				c_command(&a->parser);
+				break;
+			case SKIP :
+				printf("SKIP \n");
+				break;
+			case INVALID :
+				printf("Bad command \n");
+				// TODO: Break and exit on bad command
+				break;
+		}
 	}
 
-	if (load_asm(argv[1])){
-		printf("%s\n", "Problem loading ASM file.");
-		return 1;
-	}
-
-	Parser p;
-	parser_init(&p, file_contents);
-
-	while (has_more_commands(&p)){
-		char *command = load_next_command(&p);
-		Command_Type type = command_type(&p);
-
-		printf("%d. ", p.current_command_loc + 1);
-
-		if (type == A_COMMAND){
-			int i;
-			char *s = symbol(&p, type);
-
-			char bin[17];
-			bin[16] = '\0';
-
-			for (i = 15; i >=0; i--){
-				bin[i] = (atoi(s) >> (15 - i) & 0b1) == 1 ? '1' : '0';
-			}
-
-			printf("A : %s\n", bin);
-
-			free(s);
-		}
-		else if (type == L_COMMAND){
-			char *s = symbol(&p, type);
-			printf("%s\n", s);
-			free(s);
-		}
-		else if (type == C_COMMAND){
-			int i=0;
-			char *d = dest(&p);	
-			char *c = comp(&p);
-			char *j = jump(&p);
-
-			unsigned short b_d = bin_dest(d);
-			unsigned short b_c = bin_comp(c);
-			unsigned short b_j = bin_jump(j);
-
-			unsigned short conc = ((0b111 << 13) + (bin_comp(c) << 6) + (bin_dest(d) << 3) + bin_jump(j)) & 0xFFFF;
-
-			char bin[17];
-			bin[16] = '\0';
-
-			for (i = 15; i >=0; i--){
-				bin[i] = (conc >> (15 - i) & 0b1) == 1 ? '1' : '0';
-			}
-
-			printf("D : %s\n", bin);
-
-			free(d);
-			free(c);
-			free(j);
-		}
-		else if (type == SKIP){
-			printf("SKIP \n");
-		}
-		else {
-			// Invalid command
-			printf("Bad command \n");
-		}
-
-	}
-
-	return 0;
+	return a->machine_code;
 }
 
-int load_asm(char *asm_path){
+char *load_asm(Assembler *a, char *asm_path){
 	int status_code = 0;
 	FILE *asm_file = fopen(asm_path, "r");
+	char *file_contents;
 
 	if (asm_file == NULL){
 		status_code = 1;
@@ -112,5 +63,54 @@ int load_asm(char *asm_path){
 		fclose(asm_file);
 	}
 
-	return status_code;
+	return file_contents;
+}
+
+void a_command(Parser *p){
+	int i;
+	char *s = symbol(p, A_COMMAND);
+
+	char bin[17];
+	bin[16] = '\0';
+
+	for (i = 15; i >=0; i--){
+		bin[i] = (atoi(s) >> (15 - i) & 0b1) == 1 ? '1' : '0';
+	}
+
+	printf("A : %s\n", bin);
+
+	free(s);
+}
+
+void l_command(Parser *p){
+	char *s = symbol(p, L_COMMAND);
+	printf("%s\n", s);
+
+	free(s);
+}
+
+void c_command(Parser *p){
+	int i=0;
+	char *d = dest(p);	
+	char *c = comp(p);
+	char *j = jump(p);
+
+	unsigned short b_d = bin_dest(d);
+	unsigned short b_c = bin_comp(c);
+	unsigned short b_j = bin_jump(j);
+
+	unsigned short conc = ((0b111 << 13) + (b_c << 6) + (b_d << 3) + b_j) & 0xFFFF;
+
+	char bin[17];
+	bin[16] = '\0';
+
+	for (i = 15; i >=0; i--){
+		bin[i] = (conc >> (15 - i) & 0b1) == 1 ? '1' : '0';
+	}
+
+	printf("D : %s\n", bin);
+
+	free(d);
+	free(c);
+	free(j);
 }

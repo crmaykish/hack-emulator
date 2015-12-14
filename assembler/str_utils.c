@@ -27,7 +27,6 @@ int index_of(const char *str, const char c){
 
 // Shamelessly stolen from JayM on Stack Overflow...
 // http://stackoverflow.com/questions/2450704/writing-string-trim-in-c
-// TODO: This is still segfaulting on an empty last line for some reason...
 char *trim(char *string)
 {
     char *temp = (char) 0;

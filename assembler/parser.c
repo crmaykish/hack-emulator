@@ -17,17 +17,16 @@ void parser_init(struct Parser *parser, char *file_contents) {
 	parser->command_list = malloc(parser->line_count * sizeof(char*));
 
 	// Split the file contents into lines, each corresponding to a command
-	// Ignore empty or commented lines
 	parser->command_list[0] = trim(strtok(parser->file_contents, "\n"));
 
 	for (i = 1; i < parser->line_count; i++){
 		parser->command_list[i] = trim(strtok(NULL, "\n"));
 	}
 
-	// // Start parsing at the beginning of the file
+	// Start parsing at the beginning of the file
 	parser->current_command_loc = 0;
 
-	// // Start with an empty command
+	// Start with an empty command
 	parser->current_command = 0;
 }
 
