@@ -11,5 +11,4 @@ typedef struct Emulator {
 void emulator_init(Emulator *emulator);
 void load_rom(Emulator *emulator, char *rom_file_name);
 void run(Emulator *emulator);
-// void debug(Emulator *emulator);
 unsigned short from_bin(char *s);

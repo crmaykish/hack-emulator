@@ -23,13 +23,16 @@ void run(Emulator *emulator){
 		cycle(&emulator->cpu);
 
 		render(&emulator->screen, &emulator->cpu);
+
+		printf("%d => %X | A: %X, D: %X\n", emulator->cpu.PC, emulator->cpu.OP, emulator->cpu.A, emulator->cpu.D);
+		printf("%s\n", "---");
 	}
 }
 
 void load_rom(Emulator *e, char *rom_file_name){
 	FILE *rom_file = fopen(rom_file_name, "r");
 
-	if (!rom_file != 0){
+	if (rom_file != 0){
 		char instruction[16];
 		int char_count = 0;
 		int c;
@@ -50,12 +53,6 @@ void load_rom(Emulator *e, char *rom_file_name){
 		fclose(rom_file);
 	}
 }
-
-// void debug(){
-// 	printf("%d => %X | A: %X, D: %X\n", PC, OP, A, D);
-// 	printf("%s\n", "---");
-// 	printf("%X, %X, %X, %X\n---\n", DM[0x10], DM[0x11], DM[0x12], DM[0x13]);
-// }
 
 unsigned short from_bin(char *s){
 	return (unsigned short) strtol(s, NULL, 2);

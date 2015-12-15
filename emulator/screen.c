@@ -27,7 +27,7 @@ void render(Screen *screen, CPU *cpu){
 	// Render from screen buffer
 	for (r = 0; r < SCREEN_HEIGHT; r++){
 		for (c = 0; c < SCREEN_WIDTH; c++){
-			unsigned char bit = cpu->ROM[SCREEN_BUFFER + (r * 32) + (c / 16)] % 16;
+			unsigned char bit = cpu->RAM[SCREEN_BUFFER + (r * 32) + (c / 16)] % 16;
 			if (bit){
 				SDL_RenderDrawPoint(screen->renderer, c, r);
 			}
