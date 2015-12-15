@@ -20,4 +20,9 @@ char *dest(Parser *parser);
 char *comp(Parser *parser);
 char *jump(Parser *parser);
 
+char *a_command(Parser *p);
+char *l_command(Parser *p);
+char *c_command(Parser *p);
+
 unsigned int line_count(Parser *p);
+unsigned int machine_code_line_count(Parser *p);

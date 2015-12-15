@@ -116,6 +116,58 @@ char *jump(Parser *parser) {
 	return 0;
 }
 
+char *a_command(Parser *p){
+	int i;
+	char *s = symbol(p, A_COMMAND);
+
+	char *bin = malloc(17);
+	bin[16] = '\0';
+
+	for (i = 15; i >=0; i--){
+		bin[i] = (atoi(s) >> (15 - i) & 0b1) == 1 ? '1' : '0';
+	}
+
+	free(s);
+
+	return bin;
+}
+
+char *l_command(Parser *p){
+	char *s = symbol(p, L_COMMAND);
+
+	// TODO
+
+	free(s);
+
+	return 0;
+}
+
+char *c_command(Parser *p){
+	int i=0;
+	char *d = dest(p);	
+	char *c = comp(p);
+	char *j = jump(p);
+
+	unsigned short b_d = bin_dest(d);
+	unsigned short b_c = bin_comp(c);
+	unsigned short b_j = bin_jump(j);
+
+	unsigned short conc = ((0b111 << 13) + (b_c << 6) + (b_d << 3) + b_j) & 0xFFFF;
+
+	char *bin = malloc(17);
+	bin[16] = '\0';
+
+	for (i = 15; i >=0; i--){
+		bin[i] = (conc >> (15 - i) & 0b1) == 1 ? '1' : '0';
+	}
+
+	free(d);
+	free(c);
+	free(j);
+
+	return bin;
+}
+
 unsigned int line_count(Parser *p){
 	unsigned int count = 1;	// Assume last line doesn't have line break after it
 	int i;
@@ -128,4 +180,21 @@ unsigned int line_count(Parser *p){
 	}
 
 	return count;
+}
+
+unsigned int machine_code_line_count(Parser *p){
+	unsigned int machine_code_line_count = 0;
+	int i = 0;
+
+	for (i = 0; i < p->line_count; i++){
+		char *com = p->command_list[i];
+
+		if (!(com == (char) 0 ||			// Check for empty strings
+			isspace(com[0]) ||					// Check for empty lines
+			starts_with(com, "//")			// Check for comments
+		)){
+			machine_code_line_count++;
+		}
+	}
+	return machine_code_line_count;
 }

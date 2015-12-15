@@ -8,6 +8,7 @@ int main(int argc, char *argv[]){
 	char *hack_file_name = argv[2];
 	char *machine_code;
 	Assembler a;
+	FILE *hack_file;
 	
 	// Primitive argument checking
 	if (argc < 3) {
@@ -15,8 +16,15 @@ int main(int argc, char *argv[]){
 		return 1;
 	}
 
-	printf("Starting assembly of %s\n", asm_file_name);
-	machine_code = assemble(&a, asm_file_name);
+	assembler_init(&a, asm_file_name);
 
-	// TODO: Write machine code to file
+	machine_code = assemble(&a);
+
+	printf("Machine code:\n%s\n", machine_code);
+
+	hack_file = fopen(hack_file_name, "w+");
+
+	fprintf(hack_file, "%s", machine_code);
+
+	fclose(hack_file);
 }

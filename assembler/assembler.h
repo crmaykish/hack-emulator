@@ -5,8 +5,6 @@ typedef struct Assembler {
 	char *machine_code;
 } Assembler;
 
+void assembler_init(Assembler *a, char *asm_path);
 char *load_asm(Assembler *a, char *asm_path);
-char *assemble(Assembler *a, char *asm_file);
-void a_command(Parser *p);
-void l_command(Parser *p);
-void c_command(Parser *p);
+char *assemble(Assembler *a);

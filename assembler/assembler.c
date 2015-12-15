@@ -5,31 +5,40 @@
 #include "binary.h"
 #include "str_utils.h"
 
-char* assemble(Assembler *a, char *asm_path){
+void assembler_init(Assembler *a, char *asm_path){
+	int mach_line_count = 0;
 	char *file_contents = load_asm(a, asm_path);
 	parser_init(&a->parser, file_contents);
 
+	mach_line_count = machine_code_line_count(&a->parser);
+	a->machine_code = malloc((sizeof(char*) * 17) * mach_line_count);
+}
+
+char* assemble(Assembler *a){
 	while (has_more_commands(&a->parser)){
 		char *command = load_next_command(&a->parser);
 		Command_Type type = command_type(&a->parser);
-
-		printf("%d. ", a->parser.current_command_loc + 1);
+		char *machine_code;
 
 		switch (type){
 			case A_COMMAND :
-				a_command(&a->parser);
+				machine_code = a_command(&a->parser);
+				strcat(a->machine_code, machine_code);
+				strcat(a->machine_code, "\n");
+				free(machine_code);
 				break;
 			case L_COMMAND :
 				l_command(&a->parser);
 				break;
 			case C_COMMAND :
-				c_command(&a->parser);
+				machine_code = c_command(&a->parser);
+				strcat(a->machine_code, machine_code);
+				strcat(a->machine_code, "\n");
+				free(machine_code);
 				break;
 			case SKIP :
-				printf("SKIP \n");
 				break;
 			case INVALID :
-				printf("Bad command \n");
 				// TODO: Break and exit on bad command
 				break;
 		}
@@ -64,53 +73,4 @@ char *load_asm(Assembler *a, char *asm_path){
 	}
 
 	return file_contents;
-}
-
-void a_command(Parser *p){
-	int i;
-	char *s = symbol(p, A_COMMAND);
-
-	char bin[17];
-	bin[16] = '\0';
-
-	for (i = 15; i >=0; i--){
-		bin[i] = (atoi(s) >> (15 - i) & 0b1) == 1 ? '1' : '0';
-	}
-
-	printf("A : %s\n", bin);
-
-	free(s);
-}
-
-void l_command(Parser *p){
-	char *s = symbol(p, L_COMMAND);
-	printf("%s\n", s);
-
-	free(s);
-}
-
-void c_command(Parser *p){
-	int i=0;
-	char *d = dest(p);	
-	char *c = comp(p);
-	char *j = jump(p);
-
-	unsigned short b_d = bin_dest(d);
-	unsigned short b_c = bin_comp(c);
-	unsigned short b_j = bin_jump(j);
-
-	unsigned short conc = ((0b111 << 13) + (b_c << 6) + (b_d << 3) + b_j) & 0xFFFF;
-
-	char bin[17];
-	bin[16] = '\0';
-
-	for (i = 15; i >=0; i--){
-		bin[i] = (conc >> (15 - i) & 0b1) == 1 ? '1' : '0';
-	}
-
-	printf("D : %s\n", bin);
-
-	free(d);
-	free(c);
-	free(j);
 }

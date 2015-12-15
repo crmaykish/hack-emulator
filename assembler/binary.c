@@ -121,6 +121,8 @@ unsigned short bin_comp(char *c){
 	else if (strcmp(c, "D|M") == 0){
 		bin = 0b1010101;
 	}
+
+	return bin;
 }
 
 unsigned short bin_jump(char *j){
