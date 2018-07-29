@@ -10,12 +10,12 @@ Screen* Screen_Create(){
 
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 		printf("Could not initialize SDL: %s\n", SDL_GetError());
-		return 3;
+		// return 3;
 	}
 	
 	if (SDL_CreateWindowAndRenderer(SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL, &screen->window, &screen->renderer)){
 		printf("Couldn't create window and renderer: %s\n", SDL_GetError());
-		return 3;
+		// return 3;
 	}
 
 	return screen;

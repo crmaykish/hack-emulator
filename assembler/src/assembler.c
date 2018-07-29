@@ -11,7 +11,7 @@ void assembler_init(Assembler *a, char *asm_path){
 	parser_init(&a->parser, file_contents);
 
 	mach_line_count = machine_code_line_count(&a->parser);
-	a->machine_code = malloc((sizeof(char*) * 17) * mach_line_count);
+	a->machine_code = calloc(1, sizeof(char) * 17 * mach_line_count);
 }
 
 char* assemble(Assembler *a){

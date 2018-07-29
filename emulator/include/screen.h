@@ -1,3 +1,6 @@
+#ifndef SCREEN_H
+#define SCREEN_H
+
 #include <SDL2/SDL.h>
 #include "cpu.h"
 
@@ -10,3 +13,5 @@ typedef struct Screen Screen;
 Screen* Screen_Create();
 void Screen_Render(Screen *screen, CPU *cpu);
 void Screen_Destroy(Screen *screen);
+
+#endif

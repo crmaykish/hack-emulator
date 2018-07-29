@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "parser.h"
+#include "binary.h"
 #include "str_utils.h"
 
 void parser_init(struct Parser *parser, char *file_contents) {

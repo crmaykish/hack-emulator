@@ -1,3 +1,6 @@
+#ifndef PARSER_H
+#define PARSER_H
+
 typedef struct Parser {
 	char *file_contents;
 	int line_count;
@@ -26,3 +29,5 @@ char *c_command(Parser *p);
 
 unsigned int line_count(Parser *p);
 unsigned int machine_code_line_count(Parser *p);
+
+#endif

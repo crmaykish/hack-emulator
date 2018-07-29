@@ -1,3 +1,6 @@
+#ifndef ASSEMBLER_H
+#define ASSEMBLER_H
+
 #include "parser.h"
 
 typedef struct Assembler {
@@ -8,3 +11,5 @@ typedef struct Assembler {
 void assembler_init(Assembler *a, char *asm_path);
 char *load_asm(Assembler *a, char *asm_path);
 char *assemble(Assembler *a);
+
+#endif

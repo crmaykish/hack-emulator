@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 int starts_with(char *str, char *prefix){
 	return strncmp(prefix, str, strlen(prefix)) == 0;

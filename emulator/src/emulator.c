@@ -43,10 +43,7 @@ int Emulator_LoadROM(Emulator *emulator, char *rom_file_name){
 			}
 		}
 
-		printf("more shit?\n");
 		CPU_SetROM(emulator->cpu, rom);
-
-		printf("yup\n");
 
 		fclose(rom_file);
 	}
