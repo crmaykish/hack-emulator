@@ -2,7 +2,7 @@
 
 void emulator_init(Emulator *emulator){
 	// Init CPU and Screen
-	CPU_Create(emulator->cpu);
+	emulator->cpu = CPU_Create();
 	create_screen(&emulator->screen);
 }
 
@@ -36,6 +36,8 @@ int load_rom(Emulator *e, char *rom_file_name){
 		int i=0;
 		int rom[MEM_SIZE];
 
+		memset(rom, 0, MEM_SIZE);
+
 		while( (c = fgetc(rom_file)) != EOF){
 			if (c == '0' || c == '1') {
 				instruction[char_count] = c;
@@ -48,10 +50,7 @@ int load_rom(Emulator *e, char *rom_file_name){
 			}
 		}
 
-		printf("copying rom file to mem\n");
 		CPU_SetROM(e->cpu, rom);
-
-		printf("copied\n");
 
 		fclose(rom_file);
 	}

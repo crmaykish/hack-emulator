@@ -6,15 +6,16 @@
 struct CPU {
 	int A;			// Address Register
 	int D;			// Data Register
-	int ROM[MEM_SIZE];	// Instruction Memory (ROM)
-	int RAM[MEM_SIZE];	// Data Memory (RAM)
 	int PC;			// Program Counter
 	int OP;			// Current Op Code
 	int running;	// Processor running state
+	int ROM[MEM_SIZE];		// Instruction Memory (ROM)
+	int RAM[MEM_SIZE];		// Data Memory (RAM)
 };
 
 CPU* CPU_Create() {
-	CPU *cpu = malloc(sizeof(CPU));
+	CPU *cpu = calloc(1, sizeof(CPU));
+
 	cpu->A = 0;
 	cpu->D = 0;
 	cpu->PC = 0;
@@ -212,7 +213,7 @@ void CPU_SetRunning(CPU *cpu, CPUState running) {
 }
 
 void CPU_SetROM(CPU *cpu, int rom[]) {
-	memcpy(&cpu->ROM, rom, MEM_SIZE);
+	memcpy(cpu->ROM, rom, MEM_SIZE);
 }
 
 int* CPU_GetRAM(CPU *cpu) {

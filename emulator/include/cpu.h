@@ -29,7 +29,7 @@ int comp(CPU *cpu, int comp);
 CPUState CPU_GetRunning(CPU *cpu);
 void CPU_SetRunning(CPU *cpu, CPUState state);
 
-void CPU_SetROM(CPU *cpu, int rom[MEM_SIZE]);
+void CPU_SetROM(CPU *cpu, int rom[]);
 
 int* CPU_GetRAM(CPU *cpu);
 
