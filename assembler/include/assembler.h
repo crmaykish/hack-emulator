@@ -3,13 +3,10 @@
 
 #include "parser.h"
 
-typedef struct Assembler {
-	Parser parser;
-	char *machine_code;
-} Assembler;
+typedef struct Assembler Assembler;
 
-void assembler_init(Assembler *a, char *asm_path);
-char *load_asm(Assembler *a, char *asm_path);
-char *assemble(Assembler *a);
+Assembler* Assembler_Create();
+void Assembler_Destroy(Assembler *assembler);
+char* Assembler_Assemble(Assembler *assembler);
 
 #endif

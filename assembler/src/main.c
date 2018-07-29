@@ -2,12 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include "assembler.h"
+#include "symbol_table.h"
 
 int main(int argc, char *argv[]){
 	char *asm_file_name = argv[1];
 	char *hack_file_name = argv[2];
 	char *machine_code;
-	Assembler a;
+	Assembler *assembler;
 	FILE *hack_file;
 	
 	// Primitive argument checking
@@ -16,9 +17,9 @@ int main(int argc, char *argv[]){
 		return 1;
 	}
 
-	assembler_init(&a, asm_file_name);
+	assembler = Assembler_Create(asm_file_name);
 
-	machine_code = assemble(&a);
+	machine_code = Assembler_Assemble(assembler);
 
 	printf("Machine code:\n%s\n", machine_code);
 
@@ -27,4 +28,6 @@ int main(int argc, char *argv[]){
 	fprintf(hack_file, "%s", machine_code);
 
 	fclose(hack_file);
+
+	Assembler_Destroy(assembler);
 }

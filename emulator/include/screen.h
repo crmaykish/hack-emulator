@@ -7,6 +7,7 @@
 static const int SCREEN_WIDTH = 512;
 static const int SCREEN_HEIGHT = 256;
 static const int SCREEN_BUFFER = 0x4000;
+static const int FRAME_TIME = 250;  // ms
 
 typedef struct Screen Screen;
 

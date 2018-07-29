@@ -5,35 +5,56 @@
 #include "binary.h"
 #include "str_utils.h"
 
-void assembler_init(Assembler *a, char *asm_path){
-	int mach_line_count = 0;
-	char *file_contents = load_asm(a, asm_path);
-	parser_init(&a->parser, file_contents);
+struct Assembler {
+	Parser *parser;
+	char *machine_code;
+};
 
-	mach_line_count = machine_code_line_count(&a->parser);
-	a->machine_code = calloc(1, sizeof(char) * 17 * mach_line_count);
+char* load_asm_file(Assembler *a, char *asm_path);
+
+Assembler* Assembler_Create(char *asm_path){
+	Assembler *assembler = calloc(1, sizeof(Assembler));
+
+	int mach_line_count = 0;
+	char *file_contents = load_asm_file(assembler, asm_path);
+	assembler->parser = Parser_Create(file_contents);
+
+	mach_line_count = machine_code_line_count(assembler->parser);
+	assembler->machine_code = calloc(1, sizeof(char) * 17 * mach_line_count);
+
+	return assembler;
 }
 
-char* assemble(Assembler *a){
-	while (has_more_commands(&a->parser)){
-		char *command = load_next_command(&a->parser);
-		Command_Type type = command_type(&a->parser);
+void Assembler_Destroy(Assembler *assembler) {
+	Parser_Destroy(assembler->parser);
+	free(assembler);
+}
+
+char* Assembler_Assemble(Assembler *assembler){
+
+	Parser_CreateSymbols(assembler->parser);
+
+	Parser_Reset(assembler->parser);
+
+	while (has_more_commands(assembler->parser)){
+		char *command = load_next_command(assembler->parser);
+		Command_Type type = command_type(assembler->parser);
 		char *machine_code;
 
 		switch (type){
 			case A_COMMAND :
-				machine_code = a_command(&a->parser);
-				strcat(a->machine_code, machine_code);
-				strcat(a->machine_code, "\n");
+				machine_code = a_command(assembler->parser);
+				strcat(assembler->machine_code, machine_code);
+				strcat(assembler->machine_code, "\n");
 				free(machine_code);
 				break;
 			case L_COMMAND :
-				l_command(&a->parser);
+				l_command(assembler->parser);
 				break;
 			case C_COMMAND :
-				machine_code = c_command(&a->parser);
-				strcat(a->machine_code, machine_code);
-				strcat(a->machine_code, "\n");
+				machine_code = c_command(assembler->parser);
+				strcat(assembler->machine_code, machine_code);
+				strcat(assembler->machine_code, "\n");
 				free(machine_code);
 				break;
 			case SKIP :
@@ -44,10 +65,10 @@ char* assemble(Assembler *a){
 		}
 	}
 
-	return a->machine_code;
+	return assembler->machine_code;
 }
 
-char *load_asm(Assembler *a, char *asm_path){
+char* load_asm_file(Assembler *a, char *asm_path){
 	int status_code = 0;
 	FILE *asm_file = fopen(asm_path, "r");
 	char *file_contents;

@@ -34,7 +34,7 @@ void Screen_Render(Screen *screen, CPU *cpu){
 	// Render from screen buffer
 	for (r = 0; r < SCREEN_HEIGHT; r++){
 		for (c = 0; c < SCREEN_WIDTH; c++){
-			unsigned char bit = CPU_GetRAM(cpu)[SCREEN_BUFFER + (r * 32) + (c / 16)] % 16;
+			unsigned char bit = (CPU_GetRAM(cpu))[SCREEN_BUFFER + (r * 32) + (c / 16)] % 16;
 			if (bit){
 				SDL_RenderDrawPoint(screen->renderer, c, r);
 			}
@@ -43,7 +43,7 @@ void Screen_Render(Screen *screen, CPU *cpu){
 	
 	SDL_RenderPresent(screen->renderer);
 
-	SDL_Delay(50);
+	SDL_Delay(FRAME_TIME);
 }
 
 void Screen_Destroy(Screen *screen){

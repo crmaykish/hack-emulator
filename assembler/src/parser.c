@@ -3,10 +3,24 @@
 #include <string.h>
 #include <ctype.h>
 #include "parser.h"
+#include "symbol_table.h"
 #include "binary.h"
 #include "str_utils.h"
 
-void parser_init(struct Parser *parser, char *file_contents) {
+struct Parser {
+	SymbolTable *symbol_table;
+	char *file_contents;
+	int line_count;
+	char *current_command;
+	unsigned int current_command_loc;
+	char **command_list;
+};
+
+Parser* Parser_Create(char *file_contents) {
+	Parser *parser = calloc(1, sizeof(Parser));
+
+	parser->symbol_table = SymbolTable_Create();
+
 	int i;
 
 	// Point Parser's file_contents at parameter
@@ -30,6 +44,19 @@ void parser_init(struct Parser *parser, char *file_contents) {
 
 	// Start with an empty command
 	parser->current_command = 0;
+
+	return parser;
+}
+
+void Parser_Destroy(Parser *parser) {
+	// TODO
+	SymbolTable_Destroy(parser->symbol_table);
+	free(parser);
+}
+
+void Parser_Reset(Parser *parser) {
+	parser->current_command = NULL;
+	parser->current_command_loc = 0;
 }
 
 int has_more_commands(Parser *parser) {
@@ -137,9 +164,12 @@ char *a_command(Parser *p){
 char *l_command(Parser *p){
 	char *s = symbol(p, L_COMMAND);
 
-	// TODO
+	// TODO - lookup the symbol
 
-	free(s);
+	printf("Lookup: %s\n", s);
+
+
+	free(s);	// remove this?
 
 	return 0;
 }
@@ -199,4 +229,26 @@ unsigned int machine_code_line_count(Parser *p){
 		}
 	}
 	return machine_code_line_count;
+}
+
+void Parser_CreateSymbols(Parser *p) {
+	int rom_address = 0;
+
+	while (has_more_commands(p)) {
+		char *command = load_next_command(p);
+		Command_Type type = command_type(p);
+
+		switch (type) {
+			case L_COMMAND:
+				SymbolTable_Add(p->symbol_table, symbol(p, L_COMMAND), rom_address);
+				break;
+			case A_COMMAND:
+			case C_COMMAND:
+				rom_address++;
+				break;
+			case SKIP:
+			case INVALID:
+				break;
+		}
+	}
 }
