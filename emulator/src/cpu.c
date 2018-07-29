@@ -13,6 +13,17 @@ struct CPU {
 	int RAM[MEM_SIZE];		// Data Memory (RAM)
 };
 
+// Opcode decoding
+int a_val(int opcode);
+int c_comp(int opcode);
+int c_dest(int opcode);
+int c_jump(int opcode);
+
+// Opcode processing
+void jump(CPU *cpu, int comp, int jump);
+void dest(CPU *cpu, int val, int dest);
+int comp(CPU *cpu, int comp);
+
 CPU* CPU_Create() {
 	CPU *cpu = calloc(1, sizeof(CPU));
 
@@ -26,7 +37,23 @@ CPU* CPU_Create() {
 }
 
 void CPU_Destroy(CPU *cpu) {
-	// TODO
+	free(cpu);
+}
+
+CPUState CPU_GetRunning(CPU *cpu) {
+	return cpu->running;
+}
+
+void CPU_SetRunning(CPU *cpu, CPUState running) {
+	cpu->running = running;
+}
+
+void CPU_SetROM(CPU *cpu, int rom[]) {
+	memcpy(cpu->ROM, rom, MEM_SIZE);
+}
+
+int* CPU_GetRAM(CPU *cpu) {
+	return cpu->RAM;
 }
 
 void CPU_Cycle(CPU *cpu) {
@@ -54,22 +81,6 @@ void CPU_Cycle(CPU *cpu) {
 
 	printf("%d => %X | A: %X, D: %X\n", cpu->PC, cpu->OP, cpu->A, cpu->D);
 	printf("%s\n", "---");
-}
-
-int a_val(int opcode) {
-	return opcode & 0b111111111111111;
-}
-
-int c_comp(int opcode) {
-	return (opcode & 0b111111000000) >> 6;
-}
-
-int c_dest(int opcode) {
-	return (opcode & 0b111000) >> 3;
-}
-
-int c_jump(int opcode) {
-	return opcode & 0b111;
 }
 
 // Decide where to jump, if at all
@@ -204,18 +215,18 @@ int comp(CPU *cpu, int comp) {
 	return val;
 }
 
-CPUState CPU_GetRunning(CPU *cpu) {
-	return cpu->running;
+int a_val(int opcode) {
+	return opcode & 0b111111111111111;
 }
 
-void CPU_SetRunning(CPU *cpu, CPUState running) {
-	cpu->running = running;
+int c_comp(int opcode) {
+	return (opcode & 0b111111000000) >> 6;
 }
 
-void CPU_SetROM(CPU *cpu, int rom[]) {
-	memcpy(cpu->ROM, rom, MEM_SIZE);
+int c_dest(int opcode) {
+	return (opcode & 0b111000) >> 3;
 }
 
-int* CPU_GetRAM(CPU *cpu) {
-	return cpu->RAM;
+int c_jump(int opcode) {
+	return opcode & 0b111;
 }

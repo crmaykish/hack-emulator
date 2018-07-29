@@ -1,6 +1,13 @@
 #include "screen.h"
 
-int create_screen(Screen *screen){
+struct Screen {
+	SDL_Window *window;
+	SDL_Renderer *renderer;
+};
+
+Screen* Screen_Create(){
+	Screen *screen = calloc(1, sizeof(Screen));
+
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 		printf("Could not initialize SDL: %s\n", SDL_GetError());
 		return 3;
@@ -11,10 +18,10 @@ int create_screen(Screen *screen){
 		return 3;
 	}
 
-	return 0;
+	return screen;
 }
 
-void render(Screen *screen, CPU *cpu){
+void Screen_Render(Screen *screen, CPU *cpu){
 	int r, c;
 	
 	// Set background color
@@ -39,7 +46,7 @@ void render(Screen *screen, CPU *cpu){
 	SDL_Delay(50);
 }
 
-void destroy_screen(Screen *screen){
+void Screen_Destroy(Screen *screen){
 	SDL_DestroyWindow(screen->window);
 	SDL_Quit();
 }

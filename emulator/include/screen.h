@@ -5,11 +5,8 @@ static const int SCREEN_WIDTH = 512;
 static const int SCREEN_HEIGHT = 256;
 static const int SCREEN_BUFFER = 0x4000;
 
-typedef struct Screen {
-	SDL_Window *window;
-	SDL_Renderer *renderer;
-} Screen;
+typedef struct Screen Screen;
 
-int create_screen(Screen *screen);
-void render(Screen *screen, CPU *cpu);
-void destroy_screen(Screen *screen);
+Screen* Screen_Create();
+void Screen_Render(Screen *screen, CPU *cpu);
+void Screen_Destroy(Screen *screen);
