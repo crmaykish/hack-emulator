@@ -3,19 +3,18 @@
 
 #define MEM_SIZE 32768
 
-typedef struct CPU {
-	int A;			// Address Register
-	int D;			// Data Register
-	int ROM[MEM_SIZE];	// Instruction Memory (ROM)
-	int RAM[MEM_SIZE];	// Data Memory (RAM)
-	int PC;			// Program Counter
-	int OP;			// Current Op Code
-	int running;	// Processor running state
-} CPU;
+typedef enum {
+	CPU_RUNNING = 1,
+	CPU_STOPPED = 0
+} CPUState;
 
-void cpu_init(CPU *cpu);
-void cycle(CPU *cpu);
+typedef struct CPU CPU;
 
+CPU* CPU_Create();
+
+void CPU_Cycle(CPU *cpu);
+
+// TODO: make these private functions
 // Opcode decoding
 int a_val(int opcode);
 int c_comp(int opcode);
@@ -26,5 +25,12 @@ int c_jump(int opcode);
 void jump(CPU *cpu, int comp, int jump);
 void dest(CPU *cpu, int val, int dest);
 int comp(CPU *cpu, int comp);
+
+CPUState CPU_GetRunning(CPU *cpu);
+void CPU_SetRunning(CPU *cpu, CPUState state);
+
+void CPU_SetROM(CPU *cpu, int rom[MEM_SIZE]);
+
+int* CPU_GetRAM(CPU *cpu);
 
 #endif

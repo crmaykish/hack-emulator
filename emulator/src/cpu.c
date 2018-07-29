@@ -1,15 +1,34 @@
+#include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "cpu.h"
 
-void cpu_init(CPU *cpu){
+struct CPU {
+	int A;			// Address Register
+	int D;			// Data Register
+	int ROM[MEM_SIZE];	// Instruction Memory (ROM)
+	int RAM[MEM_SIZE];	// Data Memory (RAM)
+	int PC;			// Program Counter
+	int OP;			// Current Op Code
+	int running;	// Processor running state
+};
+
+CPU* CPU_Create() {
+	CPU *cpu = malloc(sizeof(CPU));
 	cpu->A = 0;
 	cpu->D = 0;
 	cpu->PC = 0;
 	cpu->OP = 0;
 	cpu->running = 1;
+
+	return cpu;
 }
 
-void cycle(CPU *cpu){
+void CPU_Destroy(CPU *cpu) {
+	// TODO
+}
+
+void CPU_Cycle(CPU *cpu) {
 	// Fetch Op Code
 	cpu->OP = cpu->ROM[cpu->PC];
 
@@ -31,26 +50,29 @@ void cycle(CPU *cpu){
 		// Increment program counter	
 		cpu->PC++;					
 	}
+
+	printf("%d => %X | A: %X, D: %X\n", cpu->PC, cpu->OP, cpu->A, cpu->D);
+	printf("%s\n", "---");
 }
 
-int a_val(int opcode){
+int a_val(int opcode) {
 	return opcode & 0b111111111111111;
 }
 
-int c_comp(int opcode){
+int c_comp(int opcode) {
 	return (opcode & 0b111111000000) >> 6;
 }
 
-int c_dest(int opcode){
+int c_dest(int opcode) {
 	return (opcode & 0b111000) >> 3;
 }
 
-int c_jump(int opcode){
+int c_jump(int opcode) {
 	return opcode & 0b111;
 }
 
 // Decide where to jump, if at all
-void jump(CPU *cpu, int comp, int jump){
+void jump(CPU *cpu, int comp, int jump) {
 	int jump_flag = 0;
 	switch (jump) {
 		case 0b000 : 	// no jump
@@ -83,7 +105,7 @@ void jump(CPU *cpu, int comp, int jump){
 }
 
 // Send value to destination, notice these are not mutually exclusive. 
-void dest(CPU *cpu, int val, int dest){	// Store in M
+void dest(CPU *cpu, int val, int dest) {	// Store in M
 	if (dest & 0b001){
 		cpu->RAM[cpu->A] = val;
 	}
@@ -95,7 +117,7 @@ void dest(CPU *cpu, int val, int dest){	// Store in M
 	}
 }
 
-int comp(CPU *cpu, int comp){
+int comp(CPU *cpu, int comp) {
 	int val;
 	switch (comp) {
 		case 0b0101010 :		// Zero
@@ -179,4 +201,20 @@ int comp(CPU *cpu, int comp){
 	}
 
 	return val;
+}
+
+CPUState CPU_GetRunning(CPU *cpu) {
+	return cpu->running;
+}
+
+void CPU_SetRunning(CPU *cpu, CPUState running) {
+	cpu->running = running;
+}
+
+void CPU_SetROM(CPU *cpu, int rom[]) {
+	memcpy(&cpu->ROM, rom, MEM_SIZE);
+}
+
+int* CPU_GetRAM(CPU *cpu) {
+	return cpu->RAM;
 }

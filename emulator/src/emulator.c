@@ -2,34 +2,31 @@
 
 void emulator_init(Emulator *emulator){
 	// Init CPU and Screen
-	cpu_init(&emulator->cpu);
+	CPU_Create(emulator->cpu);
 	create_screen(&emulator->screen);
 }
 
 void run(Emulator *emulator){
 	SDL_Event e;
 
-	while (emulator->cpu.running){
+	while (CPU_GetRunning(emulator->cpu)){
 		// Handle input events
 		while (SDL_PollEvent(&e) != 0){
 			if (e.type == SDL_QUIT){
-				emulator->cpu.running = 0;
+				CPU_SetRunning(emulator->cpu, 0);
 			}
 			else if (e.type == SDL_KEYDOWN){
 				printf("%d\n", e.key.keysym.sym);
 			}
 		}
 
-		cycle(&emulator->cpu);
+		CPU_Cycle(emulator->cpu);
 
-		render(&emulator->screen, &emulator->cpu);
-
-		printf("%d => %X | A: %X, D: %X\n", emulator->cpu.PC, emulator->cpu.OP, emulator->cpu.A, emulator->cpu.D);
-		printf("%s\n", "---");
+		render(&emulator->screen, emulator->cpu);
 	}
 }
 
-void load_rom(Emulator *e, char *rom_file_name){
+int load_rom(Emulator *e, char *rom_file_name){
 	FILE *rom_file = fopen(rom_file_name, "r");
 
 	if (rom_file != 0){
@@ -37,6 +34,7 @@ void load_rom(Emulator *e, char *rom_file_name){
 		int char_count = 0;
 		int c;
 		int i=0;
+		int rom[MEM_SIZE];
 
 		while( (c = fgetc(rom_file)) != EOF){
 			if (c == '0' || c == '1') {
@@ -44,14 +42,24 @@ void load_rom(Emulator *e, char *rom_file_name){
 				char_count++;
 				if (char_count == 16){
 					char_count = 0;
-					e->cpu.ROM[i] = from_bin(instruction);
+					rom[i] = from_bin(instruction);
 					i++;
 				}
 			}
 		}
 
+		printf("copying rom file to mem\n");
+		CPU_SetROM(e->cpu, rom);
+
+		printf("copied\n");
+
 		fclose(rom_file);
 	}
+	else {
+		return 1;
+	}
+
+	return 0;
 }
 
 unsigned short from_bin(char *s){
