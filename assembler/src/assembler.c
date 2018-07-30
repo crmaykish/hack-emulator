@@ -48,9 +48,9 @@ char* Assembler_Assemble(Assembler *assembler){
 				strcat(assembler->machine_code, "\n");
 				free(machine_code);
 				break;
-			case L_COMMAND :
-				l_command(assembler->parser);
-				break;
+			// case L_COMMAND :
+			// 	l_command(assembler->parser);
+			// 	break;
 			case C_COMMAND :
 				machine_code = c_command(assembler->parser);
 				strcat(assembler->machine_code, machine_code);

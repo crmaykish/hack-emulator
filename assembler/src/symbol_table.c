@@ -31,7 +31,7 @@ void SymbolTable_Add(SymbolTable *symbol_table, char *key, int value) {
 
     // TODO: array bounds and null checking
 
-    
+    printf("store: %s\n", key);
 
     Symbol s = {
         key = key,
@@ -41,14 +41,12 @@ void SymbolTable_Add(SymbolTable *symbol_table, char *key, int value) {
     symbol_table->symbols[symbol_table->index] = s;
 
     symbol_table->index++;
-
-    // printf("Added: %s, %d\n", key, value);
-    printf("adding: %s | ", key);
-    printf("value: %d\n", value);
 }
 
 int SymbolTable_Get(SymbolTable *symbol_table, char *key) {
     int result = NO_SYMBOL;
+
+    printf("get: %s\n", key);
 
     for (int i = 0; i < symbol_table->index; i++) {
         if (strcmp(key, symbol_table->symbols[i].key) == 0) {
@@ -57,9 +55,6 @@ int SymbolTable_Get(SymbolTable *symbol_table, char *key) {
             break;
         }
     }
-
-    printf("getting: %s | ", key);
-    printf("value: %d\n", result);
 
     return result;
 }

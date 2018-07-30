@@ -14,6 +14,7 @@ struct Parser {
 	char *current_command;
 	unsigned int current_command_loc;
 	char **command_list;
+	int ram_loc;
 };
 
 Parser* Parser_Create(char *file_contents) {
@@ -44,6 +45,8 @@ Parser* Parser_Create(char *file_contents) {
 
 	// Start with an empty command
 	parser->current_command = 0;
+
+	parser->ram_loc = 0;
 
 	return parser;
 }
@@ -148,10 +151,41 @@ char *jump(Parser *parser) {
 char *a_command(Parser *p){
 	int i;
 	char *s = symbol(p, A_COMMAND);
-
 	char *bin = malloc(17);
 	bin[16] = '\0';
 
+	if (starts_with(s, "0") ||
+		starts_with(s, "1") ||
+		starts_with(s, "2") ||
+		starts_with(s, "3") ||
+		starts_with(s, "4") ||
+		starts_with(s, "5") ||
+		starts_with(s, "6") ||
+		starts_with(s, "7") ||
+		starts_with(s, "8") ||
+		starts_with(s, "9"))
+	{
+		// literal value, just use it
+	}
+	else {
+		// lookup symbol is symbol table
+		int symbol_value = SymbolTable_Get(p->symbol_table, s);
+		if (symbol_value != NO_SYMBOL) {
+			// use stored symbol value
+			sprintf(s, "%d", symbol_value);
+		}
+		else {
+			// new symbol - find a spot in memory for it
+			SymbolTable_Add(p->symbol_table, s, p->ram_loc);
+
+			// Use the ram_loc as value now
+			sprintf(s, "%d", p->ram_loc);
+
+			p->ram_loc++;
+		}
+	}
+
+	// convert value to binary string
 	for (i = 15; i >=0; i--){
 		bin[i] = (atoi(s) >> (15 - i) & 0b1) == 1 ? '1' : '0';
 	}
@@ -166,7 +200,7 @@ char *l_command(Parser *p){
 
 	// TODO - lookup the symbol
 
-	printf("Lookup: %s\n", s);
+	// printf("Lookup: %s\n", s);
 
 
 	free(s);	// remove this?
