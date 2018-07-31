@@ -37,7 +37,7 @@ Parser* Parser_Create(char *file_contents) {
 	parser->command_list[0] = String_Trim(strtok(parser->file_contents, "\n"));
 
 	for (i = 1; i < parser->line_count; i++){
-		parser->command_list[i] = String_Trim(strtok(NULL, "\n"));
+		parser->command_list[i] = String_Trim(strcat(strtok(NULL, "\n"), "\0"));
 	}
 
 	// Start parsing at the beginning of the file
@@ -106,7 +106,7 @@ char *symbol(Parser *parser, const Command_Type type) {
 
 	// If L command, return the value between the parentheses
 	else if (type == L_COMMAND){
-		return String_Substring(parser->current_command, 1, strlen(parser->current_command) - 3);
+		return String_Substring(parser->current_command, 1, strlen(parser->current_command) - 2);
 	}
 
 	return NULL;
@@ -148,13 +148,25 @@ char *jump(Parser *parser) {
 	return 0;
 }
 
+// return has to be freed
 char *a_command(Parser *p){
 	int i;
 	char *s = symbol(p, A_COMMAND);
 	char *bin = malloc(17);
 	bin[16] = '\0';
 
-	if (String_StartsWith(s, "0") ||
+	p->current_command = "@COLIN";
+	char *a = symbol(p, A_COMMAND);
+	printf("a: %s\n", a);
+	printf("a len: %d\n", strlen(a));
+
+	p->current_command = "(COLIN)";
+	char *l = symbol(p, L_COMMAND);
+	printf("l: %s\n", l);
+	printf("l len: %d\n", strlen(l));
+
+
+	if (!(String_StartsWith(s, "0") ||
 		String_StartsWith(s, "1") ||
 		String_StartsWith(s, "2") ||
 		String_StartsWith(s, "3") ||
@@ -163,40 +175,56 @@ char *a_command(Parser *p){
 		String_StartsWith(s, "6") ||
 		String_StartsWith(s, "7") ||
 		String_StartsWith(s, "8") ||
-		String_StartsWith(s, "9"))
+		String_StartsWith(s, "9")))
 	{
-		// literal value, just use it
+		// value is a symbol
+		// is it already stored?
+
+		printf("s len: %d\n", strlen(s));
+
+		printf("symbol: %s\n", s);
+
+		int result = SymbolTable_Get(p->symbol_table, s);
+
+		printf("result: %d\n", result);
+
 	}
-	else {
-		// lookup symbol is symbol table
-		int symbol_value = SymbolTable_Get(p->symbol_table, s);
-		if (symbol_value != NO_SYMBOL) {
-			// use stored symbol value
-			printf("found it\n");
-			sprintf(s, "%d", symbol_value);
-		}
-		else {
-			// new symbol - find a spot in memory for it
-			char* new_symbol = malloc(strlen(s));
-			// TODO: this has to get freed somewhere
 
-			strncpy(new_symbol, s, strlen(new_symbol));
 
-			SymbolTable_Add(p->symbol_table, new_symbol, p->ram_loc);
 
-			// Use the ram_loc as value now
-			sprintf(s, "%d", p->ram_loc);
 
-			p->ram_loc++;
-		}
-	}
+
+
+	// else {
+	// 	// lookup symbol is symbol table
+	// 	int symbol_value = SymbolTable_Get(p->symbol_table, s);
+	// 	if (symbol_value != NO_SYMBOL) {
+	// 		// use stored symbol value
+	// 		printf("found it\n");
+	// 		sprintf(s, "%d", symbol_value);
+	// 	}
+	// 	else {
+	// 		// new symbol - find a spot in memory for it
+	// 		char* new_symbol = malloc(strlen(s));
+	// 		// TODO: this has to get freed somewhere
+
+	// 		strncpy(new_symbol, s, strlen(new_symbol));
+
+	// 		SymbolTable_Add(p->symbol_table, new_symbol, p->ram_loc);
+
+	// 		// Use the ram_loc as value now
+	// 		sprintf(s, "%d", p->ram_loc);
+
+	// 		p->ram_loc++;
+	// 	}
+	// }
 
 	// convert value to binary string
 	for (i = 15; i >=0; i--){
 		bin[i] = (atoi(s) >> (15 - i) & 0b1) == 1 ? '1' : '0';
 	}
 
-	// free(s);
+	free(s);
 
 	return bin;
 }
