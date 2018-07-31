@@ -34,10 +34,10 @@ Parser* Parser_Create(char *file_contents) {
 	parser->command_list = malloc(parser->line_count * sizeof(char*));
 
 	// Split the file contents into lines, each corresponding to a command
-	parser->command_list[0] = trim(strtok(parser->file_contents, "\n"));
+	parser->command_list[0] = String_Trim(strtok(parser->file_contents, "\n"));
 
 	for (i = 1; i < parser->line_count; i++){
-		parser->command_list[i] = trim(strtok(NULL, "\n"));
+		parser->command_list[i] = String_Trim(strtok(NULL, "\n"));
 	}
 
 	// Start parsing at the beginning of the file
@@ -80,15 +80,15 @@ Command_Type command_type(Parser *parser) {
 
 	if (parser->current_command == (char) 0 ||			// Check for empty strings
 		isspace(parser->current_command[0]) ||			// Check for empty lines
-		starts_with(parser->current_command, "//")		// Check for comments
+		String_StartsWith(parser->current_command, "//")		// Check for comments
 	){
 		return SKIP;
 	}
 
-	if (starts_with(parser->current_command, "@")){
+	if (String_StartsWith(parser->current_command, "@")){
 		return A_COMMAND;
 	}
-	else if (starts_with(parser->current_command, "(")){
+	else if (String_StartsWith(parser->current_command, "(")){
 		return L_COMMAND;
 	}
 	else if (strstr(parser->current_command, "=") || strstr(parser->current_command, ";")) {
@@ -101,21 +101,21 @@ Command_Type command_type(Parser *parser) {
 char *symbol(Parser *parser, const Command_Type type) {
 	// If A command, return the value after the @
 	if (type == A_COMMAND){
-		return substr(parser->current_command, 1, strlen(parser->current_command) - 1);
+		return String_Substring(parser->current_command, 1, strlen(parser->current_command) - 1);
 	}
 
 	// If L command, return the value between the parentheses
 	else if (type == L_COMMAND){
-		return substr(parser->current_command, 1, strlen(parser->current_command) - 3);
+		return String_Substring(parser->current_command, 1, strlen(parser->current_command) - 3);
 	}
 
 	return NULL;
 }
 
 char *dest(Parser *parser) {
-	int i = index_of(parser->current_command, '=');
+	int i = String_IndexOf(parser->current_command, '=');
 	if (i >= 0){
-		return substr(parser->current_command, 0, i);
+		return String_Substring(parser->current_command, 0, i);
 	}
 	return 0;
 }
@@ -124,8 +124,8 @@ char *comp(Parser *parser) {
 	int comp_start = 0;
 	int comp_end = strlen(parser->current_command) - 1;
 
-	int eq_index = index_of(parser->current_command, '=');
-	int semi_index = index_of(parser->current_command, ';');
+	int eq_index = String_IndexOf(parser->current_command, '=');
+	int semi_index = String_IndexOf(parser->current_command, ';');
 
 	if (eq_index >= 0){
 		comp_start = eq_index + 1;
@@ -135,15 +135,15 @@ char *comp(Parser *parser) {
 		comp_end = semi_index;
 	}
 
-	char *temp = substr(parser->current_command, comp_start, comp_end - comp_start);
+	char *temp = String_Substring(parser->current_command, comp_start, comp_end - comp_start);
 
 	return temp;
 }
 
 char *jump(Parser *parser) {
-	int i = index_of(parser->current_command, ';');
+	int i = String_IndexOf(parser->current_command, ';');
 	if (i >= 0){
-		return substr(parser->current_command, i + 1, strlen(parser->current_command) - (i + 1));
+		return String_Substring(parser->current_command, i + 1, strlen(parser->current_command) - (i + 1));
 	}
 	return 0;
 }
@@ -154,16 +154,16 @@ char *a_command(Parser *p){
 	char *bin = malloc(17);
 	bin[16] = '\0';
 
-	if (starts_with(s, "0") ||
-		starts_with(s, "1") ||
-		starts_with(s, "2") ||
-		starts_with(s, "3") ||
-		starts_with(s, "4") ||
-		starts_with(s, "5") ||
-		starts_with(s, "6") ||
-		starts_with(s, "7") ||
-		starts_with(s, "8") ||
-		starts_with(s, "9"))
+	if (String_StartsWith(s, "0") ||
+		String_StartsWith(s, "1") ||
+		String_StartsWith(s, "2") ||
+		String_StartsWith(s, "3") ||
+		String_StartsWith(s, "4") ||
+		String_StartsWith(s, "5") ||
+		String_StartsWith(s, "6") ||
+		String_StartsWith(s, "7") ||
+		String_StartsWith(s, "8") ||
+		String_StartsWith(s, "9"))
 	{
 		// literal value, just use it
 	}
@@ -172,11 +172,17 @@ char *a_command(Parser *p){
 		int symbol_value = SymbolTable_Get(p->symbol_table, s);
 		if (symbol_value != NO_SYMBOL) {
 			// use stored symbol value
+			printf("found it\n");
 			sprintf(s, "%d", symbol_value);
 		}
 		else {
 			// new symbol - find a spot in memory for it
-			SymbolTable_Add(p->symbol_table, s, p->ram_loc);
+			char* new_symbol = malloc(strlen(s));
+			// TODO: this has to get freed somewhere
+
+			strncpy(new_symbol, s, strlen(new_symbol));
+
+			SymbolTable_Add(p->symbol_table, new_symbol, p->ram_loc);
 
 			// Use the ram_loc as value now
 			sprintf(s, "%d", p->ram_loc);
@@ -190,7 +196,7 @@ char *a_command(Parser *p){
 		bin[i] = (atoi(s) >> (15 - i) & 0b1) == 1 ? '1' : '0';
 	}
 
-	free(s);
+	// free(s);
 
 	return bin;
 }
@@ -257,7 +263,7 @@ unsigned int machine_code_line_count(Parser *p){
 
 		if (!(com == (char) 0 ||			// Check for empty strings
 			isspace(com[0]) ||					// Check for empty lines
-			starts_with(com, "//")			// Check for comments
+			String_StartsWith(com, "//")			// Check for comments
 		)){
 			machine_code_line_count++;
 		}

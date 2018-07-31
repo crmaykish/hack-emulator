@@ -4,6 +4,8 @@
 #include "assembler.h"
 #include "symbol_table.h"
 
+#include "str_utils.h"
+
 int main(int argc, char *argv[]){
 	char *asm_file_name = argv[1];
 	char *hack_file_name = argv[2];
