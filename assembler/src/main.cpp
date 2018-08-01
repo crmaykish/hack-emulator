@@ -1,30 +1,28 @@
 #include <iostream>
-#include "assembler.h"
+#include "hack_assembler.hpp"
 
 int main(int argc, char *argv[]){
 	char *asm_file_name = argv[1];
 	char *hack_file_name = argv[2];
 	char *machine_code;
-	Assembler *assembler;
-	FILE *hack_file;
+	HackAssembler assem;
+	// FILE *hack_file;
 	
 	// Primitive argument checking
 	if (argc < 3) {
-		printf("%s\n", "Missing arguments...");
+		std::cout << "Missing arguments..." << std::endl;
 		return 1;
 	}
 
-	assembler = Assembler_Create(asm_file_name);
+	// assembler = Assembler_Create(asm_file_name);
 
-	machine_code = Assembler_Assemble(assembler);
+	// machine_code = Assembler_Assemble(assembler);
 
-	printf("Machine code:\n%s\n", machine_code);
+	// printf("Machine code:\n%s\n", machine_code);
 
-	hack_file = fopen(hack_file_name, "w+");
+	// hack_file = fopen(hack_file_name, "w+");
 
-	fprintf(hack_file, "%s", machine_code);
+	// fprintf(hack_file, "%s", machine_code);
 
-	fclose(hack_file);
-
-	Assembler_Destroy(assembler);
+	// fclose(hack_file);
 }
