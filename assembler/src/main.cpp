@@ -1,8 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <iostream>
 #include "assembler.h"
-#include "symbol_table.h"
 
 int main(int argc, char *argv[]){
 	char *asm_file_name = argv[1];
