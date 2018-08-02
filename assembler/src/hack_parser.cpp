@@ -3,6 +3,17 @@
 #include <sstream>
 #include <cstring>
 
+// From: http://www.cplusplus.com/forum/beginner/208971/
+std::string trim(std::string str) {
+	// remove trailing white space
+    while( !str.empty() && std::isspace( str.back() ) ) str.pop_back() ;
+
+    // return residue after leading white space
+    std::size_t pos = 0 ;
+    while( pos < str.size() && std::isspace( str[pos] ) ) ++pos ;
+    return str.substr(pos) ;
+}
+
 // Public Functions
 
 HackParser::HackParser() {
@@ -17,7 +28,7 @@ void HackParser::Initialize(std::string assemblyCode) {
 	if (!assemblyCode.empty()) {
 		while(std::getline(st, line)) {
 			if (!line.empty()) {
-				Commands.push_back(line);
+				Commands.push_back(trim(line));
 			}
 		}
 	}
@@ -106,9 +117,7 @@ std::string HackParser::ParseA(std::string aCommand) {
 	}
 
 	char bin[17];
-	
 	std::memset(bin, 0, 17);
-
 	bin[16] = '\0';
 
 	// Convert value to binary instruction
@@ -126,8 +135,6 @@ std::string HackParser::ParseC(std::string cCommand) {
 std::string HackParser::ParseL(std::string lCommand) {
 	return "l";
 }
-
-// std::string found = Symbols.find("START")->first;
 
 bool HackParser::HasSymbol(std::string key) {
 	return Symbols.count(key) > 0;
