@@ -2,16 +2,41 @@
 #define PARSER_HPP
 
 #include <string>
+#include <map>
+#include <list>
 
 enum class CommandType {A_COMMAND, C_COMMAND, L_COMMAND, SKIP, INVALID};
 
 class HackParser {
 public:
     HackParser();
-    ~HackParser();
+
+    // TODO: better name
+    void Initialize(std::string assemblyCode);
+
+    void CreateLabelSymbols();
+
+    bool HasMoreCommands();
+    void NextCommand();
+    std::string GetCurrentCommand();
+    
+    CommandType GetCommandType(std::string command);
+
+    // TODO: Parser should probably not expose command types. Just return a parsed instruction
+    std::string ParseA(std::string aCommand);
+    std::string ParseC(std::string cCommand);
+    std::string ParseL(std::string lCommand);
+
+private:
+    std::map<std::string, int> Symbols;
+    
+    std::list<std::string> Commands;
+    std::list<std::string>::iterator CommandsIterator;
+
+    int RamPosition;
+
+    bool HasSymbol(std::string key);
 };
-
-
 
 // Parser* Parser_Create(char *file_contents);
 // void Parser_Destroy(Parser *parser);

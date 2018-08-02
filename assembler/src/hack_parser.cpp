@@ -1,93 +1,138 @@
 #include "hack_parser.hpp"
+#include <iostream>
+#include <sstream>
+#include <cstring>
+
+// Public Functions
 
 HackParser::HackParser() {
-
+	RamPosition = 0;
 }
 
-HackParser::~HackParser() {
+void HackParser::Initialize(std::string assemblyCode) {
+	// Break down assembly code into commands
+	std::stringstream st(assemblyCode);
+	std::string line;
+
+	if (!assemblyCode.empty()) {
+		while(std::getline(st, line)) {
+			if (!line.empty()) {
+				Commands.push_back(line);
+			}
+		}
+	}
+	CommandsIterator = Commands.begin();
+}
+
+void HackParser::CreateLabelSymbols() {
+	int codeRow = 0;
+
+	for (std::string& i : Commands) {
+		// For each command, check if it's a label, i.e. starts and ends with ()
+		if (i.c_str()[0] == '(') {
+			if (i.c_str()[i.length() - 1] == ')') {
+				// If the commands ends with a ), it's a good label
+				Symbols.insert(std::pair<std::string, int>(i.substr(1, i.length() - 2), codeRow));
+			}
+			else {
+				// TODO: Incomplete symbol - error out
+			}
+		}
+		codeRow++;
+	}
+}
+
+bool HackParser::HasMoreCommands() {
+	return CommandsIterator != Commands.end();
+}
+
+std::string HackParser::GetCurrentCommand() {
+	return *CommandsIterator;
+}
+
+void HackParser::NextCommand() {
+	std::advance(CommandsIterator, 1);
+}
+
+CommandType HackParser::GetCommandType(std::string command) {
+	// Skip comments and empty lines
+	if (command.empty() || command.substr(0, 2) == "//") {
+		return CommandType::SKIP;
+	}
+	// A commands start with @
+	if (command.substr(0, 1) == "@") {
+		return CommandType::A_COMMAND;
+	}
+	// L commands start with (
+	if (command.substr(0, 1) == "(") {
+		return CommandType::L_COMMAND;
+	}
+	// C commands contain = or ;
+	if (command.find("=") > 0 || command.find(";")) {
+		return CommandType::C_COMMAND;
+	}
+
+	return CommandType::INVALID;
+}
+
+std::string HackParser::ParseA(std::string aCommand) {
+	// A command value
+	int value;
 	
+	// Remove the starting @ to get the symbol
+	std::string symbol = aCommand.substr(1, aCommand.length() - 1);
+
+	// If the first character is a digit, use the value directly
+	if (std::isdigit(symbol.at(0))) {
+		value = atoi(symbol.c_str());
+	}
+	// Else first character is not a digit, it's a symbol
+	else {
+		// Look up the symbol
+		std::map<std::string, int>::iterator i = Symbols.find(symbol);
+
+		// See if the symbol is already mapped
+		if (i != Symbols.end()) {
+			// Use the value from the symbols table
+			value = i->second;
+		}
+		else {
+			// If not mapped, create a new value in the symbols table and use it
+			Symbols.insert(std::pair<std::string, int>(symbol, RamPosition));
+			
+			// Use the current RAM position and increase it for the next symbol
+			value = RamPosition++;
+		}
+	}
+
+	char bin[17];
+	
+	std::memset(bin, 0, 17);
+
+	bin[16] = '\0';
+
+	// Convert value to binary instruction
+	for (int i = 15; i >=0; i--) {
+		bin[i] = (value >> (15 - i) & 0b1) == 1 ? '1' : '0';
+	}
+
+	return std::string(bin);
 }
 
-// Parser* Parser_Create(char *file_contents) {
-// 	Parser *parser = calloc(1, sizeof(Parser));
+std::string HackParser::ParseC(std::string cCommand) {
+	return "c";
+}
 
-// 	parser->symbol_table = SymbolTable_Create();
+std::string HackParser::ParseL(std::string lCommand) {
+	return "l";
+}
 
-// 	int i;
+// std::string found = Symbols.find("START")->first;
 
-// 	// Point Parser's file_contents at parameter
-// 	parser->file_contents = file_contents;
+bool HackParser::HasSymbol(std::string key) {
+	return Symbols.count(key) > 0;
+}
 
-// 	// Count the lines in the file contents
-// 	parser->line_count = line_count(parser);
-
-// 	// Initialize command list array
-// 	parser->command_list = malloc(parser->line_count * sizeof(char*));
-
-// 	// Split the file contents into lines, each corresponding to a command
-// 	parser->command_list[0] = String_Trim(strtok(parser->file_contents, "\n"));
-
-// 	for (i = 1; i < parser->line_count; i++){
-// 		parser->command_list[i] = String_Trim(strcat(strtok(NULL, "\n"), "\0"));
-// 	}
-
-// 	// Start parsing at the beginning of the file
-// 	parser->current_command_loc = 0;
-
-// 	// Start with an empty command
-// 	parser->current_command = 0;
-
-// 	parser->ram_loc = 0;
-
-// 	return parser;
-// }
-
-// void Parser_Destroy(Parser *parser) {
-// 	// TODO
-// 	SymbolTable_Destroy(parser->symbol_table);
-// 	free(parser);
-// }
-
-// void Parser_Reset(Parser *parser) {
-// 	parser->current_command = NULL;
-// 	parser->current_command_loc = 0;
-// }
-
-// int has_more_commands(Parser *parser) {
-// 	return parser->current_command_loc < parser->line_count - 1;
-// }
-
-// char *load_next_command(Parser *parser) {
-// 	if (parser->current_command != 0) {
-// 		parser->current_command_loc++;
-// 	}
-
-// 	parser->current_command = parser->command_list[parser->current_command_loc];
-
-// 	return parser->current_command;
-// }
-
-// Command_Type command_type(Parser *parser) {
-
-// 	if (parser->current_command == (char) 0 ||			// Check for empty strings
-// 		isspace(parser->current_command[0]) ||			// Check for empty lines
-// 		String_StartsWith(parser->current_command, "//")		// Check for comments
-// 	){
-// 		return SKIP;
-// 	}
-
-// 	if (String_StartsWith(parser->current_command, "@")){
-// 		return A_COMMAND;
-// 	}
-// 	else if (String_StartsWith(parser->current_command, "(")){
-// 		return L_COMMAND;
-// 	}
-// 	else if (strstr(parser->current_command, "=") || strstr(parser->current_command, ";")) {
-// 		return C_COMMAND;
-// 	}
-
-// 	return INVALID;
-// }
 
 // char *symbol(Parser *parser, const Command_Type type) {
 // 	// If A command, return the value after the @
@@ -257,57 +302,4 @@ HackParser::~HackParser() {
 // 	free(j);
 
 // 	return bin;
-// }
-
-// unsigned int line_count(Parser *p){
-// 	unsigned int count = 1;	// Assume last line doesn't have line break after it
-// 	int i;
-
-// 	for (i = 0; i < strlen(p->file_contents); i++){
-// 		int c = p->file_contents[i];
-// 		if (c == '\n'){
-// 			count++;
-// 		}
-// 	}
-
-// 	return count;
-// }
-
-// unsigned int machine_code_line_count(Parser *p){
-// 	unsigned int machine_code_line_count = 0;
-// 	int i = 0;
-
-// 	for (i = 0; i < p->line_count; i++){
-// 		char *com = p->command_list[i];
-
-// 		if (!(com == (char) 0 ||			// Check for empty strings
-// 			isspace(com[0]) ||					// Check for empty lines
-// 			String_StartsWith(com, "//")			// Check for comments
-// 		)){
-// 			machine_code_line_count++;
-// 		}
-// 	}
-// 	return machine_code_line_count;
-// }
-
-// void Parser_CreateSymbols(Parser *p) {
-// 	int rom_address = 0;
-
-// 	while (has_more_commands(p)) {
-// 		char *command = load_next_command(p);
-// 		Command_Type type = command_type(p);
-
-// 		switch (type) {
-// 			case L_COMMAND:
-// 				SymbolTable_Add(p->symbol_table, symbol(p, L_COMMAND), rom_address);
-// 				break;
-// 			case A_COMMAND:
-// 			case C_COMMAND:
-// 				rom_address++;
-// 				break;
-// 			case SKIP:
-// 			case INVALID:
-// 				break;
-// 		}
-// 	}
 // }

@@ -1,105 +1,49 @@
 #include "hack_assembler.hpp"
 #include <iostream>
 
-HackAssembler::HackAssembler() {
+std::string HackAssembler::Assemble(std::string assembly) {
+	std::string machineCode;
 
+	// Give the assembly code to the parser
+	Parser.Initialize(assembly);
+
+	// Initial pass through the code to create symbols
+	Parser.CreateLabelSymbols();
+
+	// loop through each assembly command and convert to machine instruction
+	while (Parser.HasMoreCommands()) {
+		std::string command = Parser.GetCurrentCommand();
+		CommandType type = Parser.GetCommandType(command);
+
+		std::string instruction;
+
+		// TODO: make command types into classes and have them implement their own parsing? overkill?
+		switch (type) {
+			case CommandType::A_COMMAND :
+				std::cout << "A       : " << command << std::endl;
+				instruction = Parser.ParseA(command);
+				break;
+			case CommandType::C_COMMAND :
+				std::cout << "C       : " << command << std::endl;
+				instruction = Parser.ParseC(command);
+				break;
+			case CommandType::L_COMMAND :
+				std::cout << "L       : " << command << std::endl;
+				instruction = Parser.ParseL(command);
+				break;
+			case CommandType::SKIP :
+				std::cout << "SKIP    : " << command << std::endl;
+				break;
+			case CommandType::INVALID :
+				std::cout << "INVALID : " << command << std::endl;
+				// TODO: exit on invalid command
+				break;
+		}
+
+		machineCode.append(instruction).append("\n");
+
+		Parser.NextCommand();
+	}
+
+	return machineCode;
 }
-
-HackAssembler::~HackAssembler() {
-
-}
-
-void HackAssembler::LoadASM(std::string) {
-
-}
-
-std::string HackAssembler::Assemble() {
-
-}
-
-
-// char* load_asm_file(Assembler *a, char *asm_path);
-
-// Assembler* Assembler_Create(char *asm_path){
-// 	Assembler *assembler = calloc(1, sizeof(Assembler));
-
-// 	int mach_line_count = 0;
-// 	char *file_contents = load_asm_file(assembler, asm_path);
-// 	assembler->parser = Parser_Create(file_contents);
-
-// 	mach_line_count = machine_code_line_count(assembler->parser);
-// 	assembler->machine_code = calloc(1, sizeof(char) * 17 * mach_line_count);
-
-// 	return assembler;
-// }
-
-// void Assembler_Destroy(Assembler *assembler) {
-// 	Parser_Destroy(assembler->parser);
-// 	free(assembler);
-// }
-
-// char* Assembler_Assemble(Assembler *assembler){
-
-// 	Parser_CreateSymbols(assembler->parser);
-
-// 	Parser_Reset(assembler->parser);
-
-// 	while (has_more_commands(assembler->parser)){
-// 		char *command = load_next_command(assembler->parser);
-// 		Command_Type type = command_type(assembler->parser);
-// 		char *machine_code;
-
-// 		switch (type){
-// 			case A_COMMAND :
-// 				machine_code = a_command(assembler->parser);
-// 				strcat(assembler->machine_code, machine_code);
-// 				strcat(assembler->machine_code, "\n");
-// 				free(machine_code);
-// 				break;
-// 			// case L_COMMAND :
-// 			// 	l_command(assembler->parser);
-// 			// 	break;
-// 			case C_COMMAND :
-// 				machine_code = c_command(assembler->parser);
-// 				strcat(assembler->machine_code, machine_code);
-// 				strcat(assembler->machine_code, "\n");
-// 				free(machine_code);
-// 				break;
-// 			case SKIP :
-// 				break;
-// 			case INVALID :
-// 				// TODO: Break and exit on bad command
-// 				break;
-// 		}
-// 	}
-
-// 	return assembler->machine_code;
-// }
-
-// char* load_asm_file(Assembler *a, char *asm_path){
-// 	int status_code = 0;
-// 	FILE *asm_file = fopen(asm_path, "r");
-// 	char *file_contents;
-
-// 	if (asm_file == NULL){
-// 		status_code = 1;
-// 	}
-// 	else {
-// 		long file_length = 0;
-// 		char c = 0;
-
-// 		fseek(asm_file, 0, SEEK_END);
-// 		file_length = ftell(asm_file);
-// 		fseek(asm_file, 0, SEEK_SET);
-
-// 		file_contents = malloc(file_length);
-
-// 		if (file_contents){
-// 			fread(file_contents, 1, file_length, asm_file);
-// 		}
-
-// 		fclose(asm_file);
-// 	}
-
-// 	return file_contents;
-// }

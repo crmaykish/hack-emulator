@@ -6,14 +6,16 @@
 
 class HackAssembler {
 public:
-    HackAssembler();
-    ~HackAssembler();
-
-    void LoadASM(std::string);
-    std::string Assemble();
+    /**
+     * @brief Assemble ASM code into machine code
+     * 
+     * @param assembly ASM code in string format
+     * @return std::string Binary machine code in ASCII format, each line is one instruction
+     */
+    std::string Assemble(std::string assembly);
 
 private:
-    HackParser parser;
+    HackParser Parser;
 };
 
 #endif
