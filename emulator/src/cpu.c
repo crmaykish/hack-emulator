@@ -1,3 +1,5 @@
+#define DEBUG 1
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -79,8 +81,9 @@ void CPU_Cycle(CPU *cpu) {
 		cpu->PC++;					
 	}
 
-	printf("%d => %X | A: %X, D: %X\n", cpu->PC, cpu->OP, cpu->A, cpu->D);
-	// printf("%s\n", "---");
+	#if DEBUG == 1
+		printf("PC: %d | OP: %X | A: %X | D: %X | M: %X\n", cpu->PC, cpu->OP, cpu->A, cpu->D, cpu->RAM[cpu->A]);
+	#endif
 }
 
 // Decide where to jump, if at all
@@ -117,9 +120,9 @@ void jump(CPU *cpu, int comp, int jump) {
 }
 
 // Send value to destination, notice these are not mutually exclusive. 
-void dest(CPU *cpu, int val, int dest) {	// Store in M
+void dest(CPU *cpu, int val, int dest) {	
 	if (dest & 0b001){
-		cpu->RAM[cpu->A] = val;
+		cpu->RAM[cpu->A] = val;	// Store in M
 	}
 	if ((dest & 0b010) >> 1){	// Store in D
 		cpu->D = val;
@@ -220,7 +223,7 @@ int a_val(int opcode) {
 }
 
 int c_comp(int opcode) {
-	return (opcode & 0b111111000000) >> 6;
+	return (opcode & 0b1111111000000) >> 6;
 }
 
 int c_dest(int opcode) {

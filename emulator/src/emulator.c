@@ -64,12 +64,13 @@ void Emulator_Run(Emulator *emulator){
 				CPU_SetRunning(emulator->cpu, 0);
 			}
 			else if (e.type == SDL_KEYDOWN){
-				printf("%d\n", e.key.keysym.sym);
+				printf("key press\n");
 			}
 		}
 
-		CPU_Cycle(emulator->cpu);
+		// TODO: Run Screen and CPU in different threads so CPU can run as fast as possible
 
+		CPU_Cycle(emulator->cpu);
 		Screen_Render(emulator->screen, emulator->cpu);
 	}
 }

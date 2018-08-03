@@ -7,7 +7,7 @@
 static const int SCREEN_WIDTH = 512;
 static const int SCREEN_HEIGHT = 256;
 static const int SCREEN_BUFFER = 0x4000;
-static const int FRAME_TIME = 5;  // ms
+static const int FRAME_TIME = 20;  // Limit Screen to 50 FPS
 
 typedef struct Screen Screen;
 
