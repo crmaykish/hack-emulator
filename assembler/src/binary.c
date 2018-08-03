@@ -2,12 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-unsigned short bin_dest(char *d){
+unsigned short bin_dest(const char *d){
 	unsigned short bin = 0;
-
-	if (d == (char) 0){
-		return 0;
-	}
 
 	if (strcmp(d, "M") == 0){
 		bin = 0b001;
@@ -34,7 +30,7 @@ unsigned short bin_dest(char *d){
 	return bin;
 }
 
-unsigned short bin_comp(char *c){
+unsigned short bin_comp(const char *c){
 	unsigned short bin = 0;
 
 	if (strcmp(c, "0") == 0){
@@ -125,12 +121,8 @@ unsigned short bin_comp(char *c){
 	return bin;
 }
 
-unsigned short bin_jump(char *j){
+unsigned short bin_jump(const char *j){
 	unsigned short bin = 0;
-
-	if (j == (char) 0){
-		return 0;
-	}
 
 	// strncmp() shouldn't be needed. This should work with with strcmp().
 	// Some garbage is probably at the end of the strings. I need to track down

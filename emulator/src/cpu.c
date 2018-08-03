@@ -79,7 +79,7 @@ void CPU_Cycle(CPU *cpu) {
 		cpu->PC++;					
 	}
 
-	// printf("%d => %X | A: %X, D: %X\n", cpu->PC, cpu->OP, cpu->A, cpu->D);
+	printf("%d => %X | A: %X, D: %X\n", cpu->PC, cpu->OP, cpu->A, cpu->D);
 	// printf("%s\n", "---");
 }
 
