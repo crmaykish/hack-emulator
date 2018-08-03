@@ -8,7 +8,32 @@
 std::string trim(std::string str);
 
 HackParser::HackParser() {
-	RamPosition = 0;
+	RamPosition = RAM_START;
+
+	// Add predefined symbols
+	Symbols.insert(std::pair<std::string, int>("SP", PREDEF_SP));
+	Symbols.insert(std::pair<std::string, int>("LCL", PREDEF_LCL));
+	Symbols.insert(std::pair<std::string, int>("ARG", PREDEF_ARG));
+	Symbols.insert(std::pair<std::string, int>("THIS", PREDEF_THIS));
+	Symbols.insert(std::pair<std::string, int>("THAT", PREDEF_THAT));
+	Symbols.insert(std::pair<std::string, int>("SCREEN", PREDEF_SCREEN));
+	Symbols.insert(std::pair<std::string, int>("KBD", PREDEF_KBD));
+	Symbols.insert(std::pair<std::string, int>("R0", PREDEF_R0));
+	Symbols.insert(std::pair<std::string, int>("R1", PREDEF_R1));
+	Symbols.insert(std::pair<std::string, int>("R2", PREDEF_R2));
+	Symbols.insert(std::pair<std::string, int>("R3", PREDEF_R3));
+	Symbols.insert(std::pair<std::string, int>("R4", PREDEF_R4));
+	Symbols.insert(std::pair<std::string, int>("R5", PREDEF_R5));
+	Symbols.insert(std::pair<std::string, int>("R6", PREDEF_R6));
+	Symbols.insert(std::pair<std::string, int>("R7", PREDEF_R7));
+	Symbols.insert(std::pair<std::string, int>("R8", PREDEF_R8));
+	Symbols.insert(std::pair<std::string, int>("R9", PREDEF_R9));
+	Symbols.insert(std::pair<std::string, int>("R10", PREDEF_R10));
+	Symbols.insert(std::pair<std::string, int>("R11", PREDEF_R11));
+	Symbols.insert(std::pair<std::string, int>("R12", PREDEF_R12));
+	Symbols.insert(std::pair<std::string, int>("R13", PREDEF_R13));
+	Symbols.insert(std::pair<std::string, int>("R14", PREDEF_R14));
+	Symbols.insert(std::pair<std::string, int>("R15", PREDEF_R15));
 }
 
 void HackParser::Initialize(std::string assemblyCode) {
@@ -46,7 +71,12 @@ void HackParser::CreateLabelSymbols() {
 				// TODO: Incomplete symbol - error out
 			}
 		}
-		codeRow++;
+
+		CommandType t = GetCommandType(i);
+
+		if (t == CommandType::A_COMMAND || t == CommandType::C_COMMAND) {
+			codeRow++;
+		}
 	}
 }
 
