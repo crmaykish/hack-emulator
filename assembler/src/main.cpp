@@ -1,13 +1,30 @@
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include "hack_assembler.hpp"
 
 int main(int argc, char *argv[]){
+	// Open arg 1 as file
+	std::ifstream inputFileStream(argv[1]);
+	std::stringstream buffer;
+	buffer << inputFileStream.rdbuf();
+
+	std::string assemblyCode = buffer.str();
+
+	if (assemblyCode.empty()) {
+		std::cerr << "ERROR: ASM file is empty or does not exist" << std::endl;
+		return EXIT_FAILURE;
+	}
 
 	HackAssembler assembler;
 
-	std::string assemblyCode = "(START)\n@R0       //crap \nD=M\n@R1     //more crap \nD=D-M\n(END)\n@R1\n";
-
 	std::string machineCode = assembler.Assemble(assemblyCode);
 
-	std::cout << machineCode << std::endl;
+	std::ofstream outputFileStream("a.hack");
+
+	outputFileStream << machineCode;
+
+	std::cout << "SUCCESS: Assembled HACK file" << std::endl;
+
+	return EXIT_SUCCESS;
 }
