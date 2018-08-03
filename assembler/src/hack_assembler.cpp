@@ -22,14 +22,15 @@ std::string HackAssembler::Assemble(std::string assembly) {
 			case CommandType::A_COMMAND :
 				std::cout << "A       : " << command << std::endl;
 				instruction = Parser.ParseA(command);
+				machineCode.append(instruction).append("\n");
 				break;
 			case CommandType::C_COMMAND :
 				std::cout << "C       : " << command << std::endl;
 				instruction = Parser.ParseC(command);
+				machineCode.append(instruction).append("\n");
 				break;
 			case CommandType::L_COMMAND :
 				std::cout << "L       : " << command << std::endl;
-				instruction = Parser.ParseL(command);
 				break;
 			case CommandType::SKIP :
 				std::cout << "SKIP    : " << command << std::endl;
@@ -39,8 +40,6 @@ std::string HackAssembler::Assemble(std::string assembly) {
 				// TODO: exit on invalid command
 				break;
 		}
-
-		machineCode.append(instruction).append("\n");
 
 		Parser.NextCommand();
 	}

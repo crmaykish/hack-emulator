@@ -3,18 +3,9 @@
 #include <sstream>
 #include <cstring>
 
-// From: http://www.cplusplus.com/forum/beginner/208971/
-std::string trim(std::string str) {
-	// remove trailing white space
-    while( !str.empty() && std::isspace( str.back() ) ) str.pop_back() ;
+#include "binary.h"
 
-    // return residue after leading white space
-    std::size_t pos = 0 ;
-    while( pos < str.size() && std::isspace( str[pos] ) ) ++pos ;
-    return str.substr(pos) ;
-}
-
-// Public Functions
+std::string trim(std::string str);
 
 HackParser::HackParser() {
 	RamPosition = 0;
@@ -28,6 +19,12 @@ void HackParser::Initialize(std::string assemblyCode) {
 	if (!assemblyCode.empty()) {
 		while(std::getline(st, line)) {
 			if (!line.empty()) {
+				// Remove comments
+				int commentIndex = line.find("//");
+				if (commentIndex >= 0) {
+					line = line.substr(0, commentIndex);
+				}
+
 				Commands.push_back(trim(line));
 			}
 		}
@@ -129,184 +126,77 @@ std::string HackParser::ParseA(std::string aCommand) {
 }
 
 std::string HackParser::ParseC(std::string cCommand) {
-	return "c";
-}
+		int i=0;
+		std::string d = Dest(cCommand);	
+		std::string c = Comp(cCommand);
+		std::string j = Jump(cCommand);
 
-std::string HackParser::ParseL(std::string lCommand) {
-	return "l";
+		unsigned short b_d = bin_dest(d.c_str());
+		unsigned short b_c = bin_comp(c.c_str());
+		unsigned short b_j = bin_jump(j.c_str());
+
+		unsigned short conc = ((0b111 << 13) + (b_c << 6) + (b_d << 3) + b_j) & 0xFFFF;
+
+		char bin[17];
+		std::memset(bin, 0, 17);
+		bin[16] = '\0';
+
+		for (i = 15; i >=0; i--){
+			bin[i] = (conc >> (15 - i) & 0b1) == 1 ? '1' : '0';
+		}
+
+		return std::string(bin);
 }
 
 bool HackParser::HasSymbol(std::string key) {
 	return Symbols.count(key) > 0;
 }
 
+std::string HackParser::Dest(std::string command) {
+	int i = command.find('=');
 
-// char *symbol(Parser *parser, const Command_Type type) {
-// 	// If A command, return the value after the @
-// 	if (type == A_COMMAND){
-// 		return String_Substring(parser->current_command, 1, strlen(parser->current_command) - 1);
-// 	}
+	if (i >= 0) {
+		return command.substr(0, i);
+	}
 
-// 	// If L command, return the value between the parentheses
-// 	else if (type == L_COMMAND){
-// 		return String_Substring(parser->current_command, 1, strlen(parser->current_command) - 2);
-// 	}
+	return "";
+}
 
-// 	return NULL;
-// }
+std::string HackParser::Comp(std::string command) {
+	int compStart = 0;
+	int compEnd = command.length();
 
-// char *dest(Parser *parser) {
-// 	int i = String_IndexOf(parser->current_command, '=');
-// 	if (i >= 0){
-// 		return String_Substring(parser->current_command, 0, i);
-// 	}
-// 	return 0;
-// }
+	int eqIndex = command.find('=');
+	int semiIndex = command.find(';');
 
-// char *comp(Parser *parser) {
-// 	int comp_start = 0;
-// 	int comp_end = strlen(parser->current_command) - 1;
+	if (eqIndex >= 0) {
+		compStart = eqIndex + 1;
+	}
 
-// 	int eq_index = String_IndexOf(parser->current_command, '=');
-// 	int semi_index = String_IndexOf(parser->current_command, ';');
+	if (semiIndex >= 0) {
+		compEnd = semiIndex;
+	}
 
-// 	if (eq_index >= 0){
-// 		comp_start = eq_index + 1;
-// 	}
+	return command.substr(compStart, compEnd - compStart);
+}
 
-// 	if (semi_index >= 0){
-// 		comp_end = semi_index;
-// 	}
+std::string HackParser::Jump(std::string command) {
+	int i = command.find(';');
 
-// 	char *temp = String_Substring(parser->current_command, comp_start, comp_end - comp_start);
+	if (i >= 0) {
+		return command.substr(i+1, command.length() - (i + 1));
+	}
 
-// 	return temp;
-// }
+	return "";
+}
 
-// char *jump(Parser *parser) {
-// 	int i = String_IndexOf(parser->current_command, ';');
-// 	if (i >= 0){
-// 		return String_Substring(parser->current_command, i + 1, strlen(parser->current_command) - (i + 1));
-// 	}
-// 	return 0;
-// }
+// Copypasted from: http://www.cplusplus.com/forum/beginner/208971/
+std::string trim(std::string str) {
+	// remove trailing white space
+    while( !str.empty() && std::isspace( str.back() ) ) str.pop_back() ;
 
-// // return has to be freed
-// char *a_command(Parser *p){
-// 	int i;
-// 	char *s = symbol(p, A_COMMAND);
-// 	char *bin = malloc(17);
-// 	bin[16] = '\0';
-
-// 	p->current_command = "@COLIN";
-// 	char *a = symbol(p, A_COMMAND);
-// 	printf("a: %s\n", a);
-// 	printf("a len: %d\n", strlen(a));
-
-// 	p->current_command = "(COLIN)";
-// 	char *l = symbol(p, L_COMMAND);
-// 	printf("l: %s\n", l);
-// 	printf("l len: %d\n", strlen(l));
-
-
-// 	if (!(String_StartsWith(s, "0") ||
-// 		String_StartsWith(s, "1") ||
-// 		String_StartsWith(s, "2") ||
-// 		String_StartsWith(s, "3") ||
-// 		String_StartsWith(s, "4") ||
-// 		String_StartsWith(s, "5") ||
-// 		String_StartsWith(s, "6") ||
-// 		String_StartsWith(s, "7") ||
-// 		String_StartsWith(s, "8") ||
-// 		String_StartsWith(s, "9")))
-// 	{
-// 		// value is a symbol
-// 		// is it already stored?
-
-// 		printf("s len: %d\n", strlen(s));
-
-// 		printf("symbol: %s\n", s);
-
-// 		int result = SymbolTable_Get(p->symbol_table, s);
-
-// 		printf("result: %d\n", result);
-
-// 	}
-
-
-
-
-
-
-// 	// else {
-// 	// 	// lookup symbol is symbol table
-// 	// 	int symbol_value = SymbolTable_Get(p->symbol_table, s);
-// 	// 	if (symbol_value != NO_SYMBOL) {
-// 	// 		// use stored symbol value
-// 	// 		printf("found it\n");
-// 	// 		sprintf(s, "%d", symbol_value);
-// 	// 	}
-// 	// 	else {
-// 	// 		// new symbol - find a spot in memory for it
-// 	// 		char* new_symbol = malloc(strlen(s));
-// 	// 		// TODO: this has to get freed somewhere
-
-// 	// 		strncpy(new_symbol, s, strlen(new_symbol));
-
-// 	// 		SymbolTable_Add(p->symbol_table, new_symbol, p->ram_loc);
-
-// 	// 		// Use the ram_loc as value now
-// 	// 		sprintf(s, "%d", p->ram_loc);
-
-// 	// 		p->ram_loc++;
-// 	// 	}
-// 	// }
-
-// 	// convert value to binary string
-// 	for (i = 15; i >=0; i--){
-// 		bin[i] = (atoi(s) >> (15 - i) & 0b1) == 1 ? '1' : '0';
-// 	}
-
-// 	free(s);
-
-// 	return bin;
-// }
-
-// char *l_command(Parser *p){
-// 	char *s = symbol(p, L_COMMAND);
-
-// 	// TODO - lookup the symbol
-
-// 	// printf("Lookup: %s\n", s);
-
-
-// 	free(s);	// remove this?
-
-// 	return 0;
-// }
-
-// char *c_command(Parser *p){
-// 	int i=0;
-// 	char *d = dest(p);	
-// 	char *c = comp(p);
-// 	char *j = jump(p);
-
-// 	unsigned short b_d = bin_dest(d);
-// 	unsigned short b_c = bin_comp(c);
-// 	unsigned short b_j = bin_jump(j);
-
-// 	unsigned short conc = ((0b111 << 13) + (b_c << 6) + (b_d << 3) + b_j) & 0xFFFF;
-
-// 	char *bin = malloc(17);
-// 	bin[16] = '\0';
-
-// 	for (i = 15; i >=0; i--){
-// 		bin[i] = (conc >> (15 - i) & 0b1) == 1 ? '1' : '0';
-// 	}
-
-// 	free(d);
-// 	free(c);
-// 	free(j);
-
-// 	return bin;
-// }
+    // return residue after leading white space
+    std::size_t pos = 0 ;
+    while( pos < str.size() && std::isspace( str[pos] ) ) ++pos ;
+    return str.substr(pos) ;
+}
