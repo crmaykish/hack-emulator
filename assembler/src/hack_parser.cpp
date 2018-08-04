@@ -4,7 +4,7 @@
 #include <cstring>
 
 extern "C" {
-	#include "binary.h"
+	#include "hack_binary.h"
 }
 
 std::string trim(std::string str);

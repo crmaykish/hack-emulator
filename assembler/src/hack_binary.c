@@ -1,3 +1,4 @@
+#include "hack_binary.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
