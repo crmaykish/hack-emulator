@@ -7,6 +7,7 @@ find_package(SDL2 REQUIRED)
 
 include_directories(assembler/include)
 include_directories(emulator/include)
+include_directories(translator/include)
 include_directories(${SDL2_INCLUDE_DIRS})
 
 add_executable(assembler
@@ -20,5 +21,8 @@ add_executable(emulator
         emulator/src/emulator.c
         emulator/src/main.c
         emulator/src/screen.c)
+
+add_executable(translator
+        translator/src/main.cpp)
 
 target_link_libraries(emulator ${SDL2_LIBRARIES})

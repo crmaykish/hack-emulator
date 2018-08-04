@@ -9,3 +9,7 @@ Runs assembled HACK files
 
 ## Assembler
 Converts Hack assembly code into ASCII binary machine code for use in the emulator
+
+## Translator
+This provides a Hack VM implementation targetting the Hack computer system.
+It takes VM language files and converts them to assembly code targetting the Hack platform
