@@ -10,7 +10,7 @@ include_directories(emulator/include)
 include_directories(${SDL2_INCLUDE_DIRS})
 
 add_executable(assembler
-        assembler/src/binary.c
+        assembler/src/hack_binary.c
         assembler/src/hack_assembler.cpp
         assembler/src/hack_parser.cpp
         assembler/src/main.cpp)

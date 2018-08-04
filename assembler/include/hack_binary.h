@@ -1,3 +1,7 @@
+/**
+ * @brief Provides functions for converting Hack assembly commands into machine code instructions
+ */
+
 #ifndef BINARY_H
 #define BINARY_H
 
