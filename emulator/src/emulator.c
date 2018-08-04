@@ -11,7 +11,7 @@ struct Emulator {
 };
 
 Emulator* Emulator_Create(){
-	Emulator *emulator = calloc(1, sizeof(Emulator));
+	Emulator *emulator = (Emulator *) calloc(1, sizeof(Emulator));
 
 	emulator->cpu = CPU_Create();
 	emulator->screen = Screen_Create();
