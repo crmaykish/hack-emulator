@@ -13,7 +13,7 @@ typedef enum {
 CPU* CPU_Create();
 void CPU_Destroy(CPU *cpu);
 
-CPUState CPU_GetRunning(CPU *cpu);
+CPUState CPU_GetState(CPU *cpu);
 void CPU_SetRunning(CPU *cpu, CPUState state);
 
 void CPU_SetROM(CPU *cpu, int rom[]);

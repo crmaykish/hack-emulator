@@ -1,4 +1,11 @@
-# Hack Computer System Emulator
-This is an attempt to improve my C skills by writing an emulator for the Hack computer system defined in the book "The Elements of Computing Systems" by Noam Nisan and Shimon Schocken. You should check it out. It's a great book.
+# Hack Computer System - Projects and Tools
 
-Requires libSDL2
+Projects based around the Hack computer system spec outlined
+in the book The Elements of Computing Systems
+
+## Emulator
+CPU/System emulator for the Hack computer system
+Runs assembled HACK files
+
+## Assembler
+Converts Hack assembly code into ASCII binary machine code for use in the emulator

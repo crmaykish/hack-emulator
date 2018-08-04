@@ -6,6 +6,7 @@
 extern "C" {
 	#include "binary.h"
 }
+
 std::string trim(std::string str);
 
 HackParser::HackParser() {
@@ -177,10 +178,6 @@ std::string HackParser::ParseC(std::string cCommand) {
 		}
 
 		return std::string(bin);
-}
-
-bool HackParser::HasSymbol(std::string key) {
-	return Symbols.count(key) > 0;
 }
 
 std::string HackParser::Dest(std::string command) {

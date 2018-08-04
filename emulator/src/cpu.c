@@ -10,9 +10,9 @@ struct CPU {
 	int D;			// Data Register
 	int PC;			// Program Counter
 	int OP;			// Current Op Code
-	int running;	// Processor running state
 	int ROM[MEM_SIZE];		// Instruction Memory (ROM)
 	int RAM[MEM_SIZE];		// Data Memory (RAM)
+	CPUState state;	// Processor running state
 };
 
 // Opcode decoding
@@ -33,7 +33,7 @@ CPU* CPU_Create() {
 	cpu->D = 0;
 	cpu->PC = 0;
 	cpu->OP = 0;
-	cpu->running = 1;
+	cpu->state = CPU_RUNNING;
 
 	return cpu;
 }
@@ -42,12 +42,12 @@ void CPU_Destroy(CPU *cpu) {
 	free(cpu);
 }
 
-CPUState CPU_GetRunning(CPU *cpu) {
-	return cpu->running;
+CPUState CPU_GetState(CPU *cpu) {
+	return cpu->state;
 }
 
-void CPU_SetRunning(CPU *cpu, CPUState running) {
-	cpu->running = running;
+void CPU_SetState(CPU *cpu, CPUState running) {
+	cpu->state = running;
 }
 
 void CPU_SetROM(CPU *cpu, int rom[]) {

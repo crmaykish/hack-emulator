@@ -61,8 +61,6 @@ private:
 
     int RamPosition;
 
-    bool HasSymbol(std::string key);
-
     std::string Dest(std::string command);
     std::string Comp(std::string command);
     std::string Jump(std::string command);

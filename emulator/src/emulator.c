@@ -57,11 +57,11 @@ int Emulator_LoadROM(Emulator *emulator, char *rom_file_name){
 void Emulator_Run(Emulator *emulator){
 	SDL_Event e;
 
-	while (CPU_GetRunning(emulator->cpu)){
+	while (CPU_GetState(emulator->cpu) == CPU_RUNNING){
 		// Handle input events
 		while (SDL_PollEvent(&e) != 0){
 			if (e.type == SDL_QUIT){
-				CPU_SetRunning(emulator->cpu, 0);
+				CPU_SetState(emulator->cpu, CPU_STOPPED);
 			}
 			else if (e.type == SDL_KEYDOWN){
 				printf("key press\n");
