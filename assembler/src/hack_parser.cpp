@@ -3,8 +3,9 @@
 #include <sstream>
 #include <cstring>
 
-#include "binary.h"
-
+extern "C" {
+	#include "binary.h"
+}
 std::string trim(std::string str);
 
 HackParser::HackParser() {
@@ -106,7 +107,7 @@ CommandType HackParser::GetCommandType(std::string command) {
 		return CommandType::L_COMMAND;
 	}
 	// C commands contain = or ;
-	if (command.find("=") > 0 || command.find(";")) {
+	if (command.find('=') > 0 || command.find(';')) {
 		return CommandType::C_COMMAND;
 	}
 
@@ -127,7 +128,7 @@ std::string HackParser::ParseA(std::string aCommand) {
 	// Else first character is not a digit, it's a symbol
 	else {
 		// Look up the symbol
-		std::map<std::string, int>::iterator i = Symbols.find(symbol);
+		auto i = Symbols.find(symbol);
 
 		// See if the symbol is already mapped
 		if (i != Symbols.end()) {
