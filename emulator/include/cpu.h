@@ -6,15 +6,15 @@
 typedef struct CPU CPU;
 
 typedef enum {
-	CPU_RUNNING = 1,
-	CPU_STOPPED = 0
+	CPU_RUNNING,
+	CPU_STOPPED
 } CPUState;
 
 CPU* CPU_Create();
 void CPU_Destroy(CPU *cpu);
 
 CPUState CPU_GetState(CPU *cpu);
-void CPU_SetRunning(CPU *cpu, CPUState state);
+void CPU_SetState(CPU *cpu, CPUState state);
 
 void CPU_SetROM(CPU *cpu, int rom[]);
 

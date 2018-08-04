@@ -3,11 +3,11 @@ project(hack_emulator)
 
 set(CMAKE_CXX_STANDARD 17)
 
+find_package(SDL2 REQUIRED)
+
 include_directories(assembler/include)
 include_directories(emulator/include)
 include_directories(${SDL2_INCLUDE_DIRS})
-
-find_package(SDL2 REQUIRED)
 
 add_executable(assembler
         assembler/src/binary.c

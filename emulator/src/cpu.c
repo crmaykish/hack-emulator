@@ -27,7 +27,7 @@ void dest(CPU *cpu, int val, int dest);
 int comp(CPU *cpu, int comp);
 
 CPU* CPU_Create() {
-	CPU *cpu = calloc(1, sizeof(CPU));
+	CPU *cpu = (CPU*) calloc(1, sizeof(CPU));
 
 	cpu->A = 0;
 	cpu->D = 0;
