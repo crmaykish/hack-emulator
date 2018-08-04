@@ -1,6 +1,7 @@
 #ifndef PARSER_HPP
 #define PARSER_HPP
 
+#include "command_parser.hpp"
 #include <string>
 #include <map>
 #include <list>
@@ -36,18 +37,12 @@ static const int PREDEF_THAT =          0x0004;
 static const int PREDEF_SCREEN =        0x4000;
 static const int PREDEF_KBD =           0x6000;
 
-class HackParser {
+class HackParser : public CommandParser {
 public:
     HackParser();
-
-    void Initialize(std::string assemblyCode);
-
+    
     void CreateLabelSymbols();
 
-    bool HasMoreCommands();
-    void NextCommand();
-    std::string GetCurrentCommand();
-    
     CommandType GetCommandType(std::string command);
 
     std::string ParseA(std::string aCommand);
@@ -56,9 +51,6 @@ public:
 private:
     std::map<std::string, int> Symbols;
     
-    std::list<std::string> Commands;
-    std::list<std::string>::iterator CommandsIterator;
-
     int RamPosition;
 
     std::string Dest(std::string command);
