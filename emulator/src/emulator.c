@@ -19,6 +19,13 @@ Emulator* Emulator_Create(){
 	return emulator;
 }
 
+void Emulator_Destroy(Emulator *emulator) {
+	CPU_Destroy(emulator->cpu);
+	Screen_Destroy(emulator->screen);
+
+	free(emulator);
+}
+
 int Emulator_LoadROM(Emulator *emulator, char *rom_file_name){
 	FILE *rom_file = fopen(rom_file_name, "r");
 
@@ -58,6 +65,10 @@ void Emulator_Run(Emulator *emulator){
 	SDL_Event e;
 
 	while (CPU_GetState(emulator->cpu) == CPU_RUNNING){
+		// TODO: Run Screen and CPU in different threads so CPU can run as fast as possible
+		CPU_Cycle(emulator->cpu);
+		Screen_Render(emulator->screen, emulator->cpu);
+
 		// Handle input events
 		while (SDL_PollEvent(&e) != 0){
 			if (e.type == SDL_QUIT){
@@ -67,12 +78,9 @@ void Emulator_Run(Emulator *emulator){
 				printf("key press\n");
 			}
 		}
-
-		// TODO: Run Screen and CPU in different threads so CPU can run as fast as possible
-
-		CPU_Cycle(emulator->cpu);
-		Screen_Render(emulator->screen, emulator->cpu);
 	}
+
+	printf("%s\n", "CPU Stopped!");
 }
 
 unsigned short from_bin(char *s){

@@ -16,4 +16,6 @@ int main(int argc, char *args[]){
 
 	printf("%s\n", "Emulation started");
 	Emulator_Run(emulator);
+
+	Emulator_Destroy(emulator);
 }

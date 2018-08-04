@@ -6,7 +6,7 @@ struct Screen {
 };
 
 Screen* Screen_Create(){
-	Screen *screen = calloc(1, sizeof(Screen));
+	Screen *screen = (Screen *) calloc(1, sizeof(Screen));
 
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 		printf("Could not initialize SDL: %s\n", SDL_GetError());
