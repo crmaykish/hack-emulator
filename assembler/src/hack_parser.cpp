@@ -7,8 +7,6 @@ extern "C" {
 	#include "hack_binary.h"
 }
 
-std::string trim(std::string str);
-
 HackParser::HackParser() {
 	RamPosition = RAM_START;
 
@@ -38,27 +36,6 @@ HackParser::HackParser() {
 	Symbols.insert(std::pair<std::string, int>("R15", PREDEF_R15));
 }
 
-void HackParser::Initialize(std::string assemblyCode) {
-	// Break down assembly code into commands
-	std::stringstream st(assemblyCode);
-	std::string line;
-
-	if (!assemblyCode.empty()) {
-		while(std::getline(st, line)) {
-			if (!line.empty()) {
-				// Remove comments
-				int commentIndex = line.find("//");
-				if (commentIndex >= 0) {
-					line = line.substr(0, commentIndex);
-				}
-
-				Commands.push_back(trim(line));
-			}
-		}
-	}
-	CommandsIterator = Commands.begin();
-}
-
 void HackParser::CreateLabelSymbols() {
 	int codeRow = 0;
 
@@ -81,19 +58,6 @@ void HackParser::CreateLabelSymbols() {
 		}
 	}
 }
-
-bool HackParser::HasMoreCommands() {
-	return CommandsIterator != Commands.end();
-}
-
-std::string HackParser::GetCurrentCommand() {
-	return *CommandsIterator;
-}
-
-void HackParser::NextCommand() {
-	std::advance(CommandsIterator, 1);
-}
-
 CommandType HackParser::GetCommandType(std::string command) {
 	// Skip comments and empty lines
 	if (command.empty() || command.substr(0, 2) == "//") {
@@ -216,15 +180,4 @@ std::string HackParser::Jump(std::string command) {
 	}
 
 	return "";
-}
-
-// Copypasted from: http://www.cplusplus.com/forum/beginner/208971/
-std::string trim(std::string str) {
-	// remove trailing white space
-    while( !str.empty() && std::isspace( str.back() ) ) str.pop_back() ;
-
-    // return residue after leading white space
-    std::size_t pos = 0 ;
-    while( pos < str.size() && std::isspace( str[pos] ) ) ++pos ;
-    return str.substr(pos) ;
 }
